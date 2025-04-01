@@ -1,0 +1,328 @@
+npm install express mongoose bcryptjs jsonwebtoken nodemailer dotenv express-rate-limit
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-email-password
+JWT_SECRET=your-jwt-secret
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+// MongoDB Connection
+mongoose.connect('mongodb://localhost:27017/buzz', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.log(err));
+
+// Models
+const UserSchema = new mongoose.Schema({
+  username: String,
+  email: String,
+  password: String,
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
+});
+
+const User = mongoose.model('User', UserSchema);
+
+// Nodemailer Setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Send Email Verification
+const sendVerificationEmail = (email, token) => {
+  const verificationLink = `http://localhost:5000/verify-email/${token}`;
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Email Verification',
+    text: `Please verify your email by clicking the link below:\n\n${verificationLink}`,
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.log('Error sending email:', err);
+    } else {
+      console.log('Verification email sent:', info.response);
+    }
+  });
+};
+
+// Password Validation Function
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  return passwordRegex.test(password);
+};
+
+// Rate Limiting Middleware for Registration
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per `windowMs`
+  message: 'Too many registration attempts, please try again later',
+});
+
+// User Registration
+app.post('/register', registerLimiter, async (req, res) => {
+  const { username, email, password, confirmPassword } = req.body;
+
+  if (!username || !email || !password || !confirmPassword) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: 'Passwords do not match' });
+  }
+
+  if (!validatePassword(password)) {
+    return res.status(400).json({
+      message: 'Password must be at least 8 characters, contain an uppercase letter, a number, and a special character',
+    });
+  }
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ message: 'Email is already in use' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  const user = new User({
+    username,
+    email,
+    password: hashedPassword,
+    verificationToken,
+  });
+
+  try {
+    await user.save();
+    sendVerificationEmail(email, verificationToken);
+    res.status(201).json({ message: 'User registered successfully. Please check your email for verification.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error registering user' });
+  }
+});
+
+// Resend Verification Email
+app.post('/resend-verification', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(400).json({ message: 'User not found' });
+  }
+
+  if (user.isVerified) {
+    return res.status(400).json({ message: 'User already verified' });
+  }
+
+  const verificationToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  sendVerificationEmail(user.email, verificationToken);
+
+  res.json({ message: 'Verification email resent successfully' });
+});
+
+// Email Verification
+app.get('/verify-email/:token', async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = null;
+    await user.save();
+    res.json({ message: 'Email verified successfully' });
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid or expired verification token' });
+  }
+});
+
+// Password Reset Request
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(400).json({ message: 'User not found' });
+  }
+
+  const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  const resetLink = `http://localhost:5000/reset-password/${resetToken}`;
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: user.email,
+    subject: 'Password Reset',
+    text: `Please reset your password by clicking the link below:\n\n${resetLink}`,
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error sending email' });
+    }
+
+    res.json({ message: 'Password reset email sent successfully' });
+  });
+});
+
+// Reset Password
+app.post('/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ message: 'Password is required' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid or expired reset token' });
+  }
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+npm install axios
+import React, { useState } from 'react';
+import { Button, View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import axios from 'axios';
+import validator from 'validator';
+
+const App = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('');
+
+  const validateEmail = (email) => {
+    return validator.isEmail(email);
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const handleRegister = async () => {
+    if (!username || !email || !password || !confirmPassword) {
+      return Alert.alert('Error', 'All fields are required');
+    }
+
+    if (!validateEmail(email)) {
+      return Alert.alert('Error', 'Invalid email format');
+    }
+
+    if (!validatePassword(password)) {
+      return Alert.alert('Error', 'Password must be at least 8 characters, contain an uppercase letter, a number, and a special character');
+    }
+
+    if (password !== confirmPassword) {
+      return Alert.alert('Error', 'Passwords do not match');
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/register', { username, email, password, confirmPassword });
+      Alert.alert('Success', 'User registered successfully. Please check your email for verification.');
+    } catch (error) {
+      Alert.alert('Registration Failed', 'There was an error registering the user');
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/forgot-password', { email });
+      Alert.alert('Success', 'Password reset email sent');
+    } catch (error) {
+      Alert.alert('Error', error.response.data.message);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/resend-verification', { email });
+      Alert.alert('Success', 'Verification email resent');
+    } catch (error) {
+      Alert.alert('Error', error.response.data.message);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Buzz App Registration</Text>
+      <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} />
+      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
+      <TextInput style={styles.input} placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
+      <TextInput style={styles.input} placeholder="Confirm Password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
+      <Button title="Register" onPress={handleRegister} />
+      <Button title="Forgot Password?" onPress={handleForgotPassword} />
+      <Button title="Resend Verification Email" onPress={handleResendVerification} />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  header: {
+    fontSize: 24,
+    marginBottom: 20,
+  },
+  input: {
+    width: '80%',
+    padding: 10,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+});
+
+export default App;
