@@ -53,6 +53,7 @@ const PRODUCTS = [
   { id: 'p26', name: 'Woven Seagrass Storage Baskets (3)', category: 'home', subcategory: 'storage', price: 66, vibes: ['coastal', 'minimalist'], palette: 'neutral', budgetTier: 'budget', designer: d('d-fernweh'), sponsored: false, rating: 4.5, emoji: '🧺', gradient: 'linear-gradient(135deg,#e4d3ad,#c2a26a)' },
   { id: 'p27', name: 'Moody Floral Wallpaper Panel', category: 'home', subcategory: 'decor', price: 89, vibes: ['vintage', 'bold'], palette: 'bold', budgetTier: 'mid', designer: d('d-castleigh'), sponsored: false, rating: 4.2, emoji: '🖼️', gradient: 'linear-gradient(135deg,#3c1f3d,#1c0d1e)' },
   { id: 'p28', name: 'Scalloped Edge Ceramic Planter', category: 'home', subcategory: 'decor', price: 34, vibes: ['cozy', 'boho'], palette: 'pastel', budgetTier: 'budget', designer: d('d-northbloom'), sponsored: false, rating: 4.6, emoji: '🪴', gradient: 'linear-gradient(135deg,#f2ddd8,#dcb3ab)' },
+  { id: 'p29', name: 'Handwoven Jute & Wool Area Rug', category: 'home', subcategory: 'rugs', price: 145, vibes: ['boho', 'coastal'], palette: 'neutral', budgetTier: 'mid', designer: d('d-fernweh'), sponsored: false, rating: 4.7, emoji: '🟤', gradient: 'linear-gradient(135deg,#e3d1ab,#a9835a)' },
 ];
 
 const VIP_TIERS = [
