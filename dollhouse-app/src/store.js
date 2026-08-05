@@ -49,6 +49,7 @@ const state = {
   ],
   orders: [],
   subscriptions: [],
+  profiles: {},
 };
 
 module.exports = { state, id };

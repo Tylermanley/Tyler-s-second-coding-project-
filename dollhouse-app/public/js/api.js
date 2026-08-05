@@ -45,4 +45,10 @@ const Api = {
   cancelVip: (userId) => apiRequest('POST', '/vip/cancel', { userId }),
 
   getStats: () => apiRequest('GET', '/stats'),
+
+  getProfile: (userId) => apiRequest('GET', `/profile/${encodeURIComponent(userId)}`),
+  updateProfile: (userId, displayName) => apiRequest('PUT', `/profile/${encodeURIComponent(userId)}`, { displayName }),
+  connectSocial: (userId, platform, handle) =>
+    apiRequest('POST', `/profile/${encodeURIComponent(userId)}/social/${platform}`, { handle }),
+  disconnectSocial: (userId, platform) => apiRequest('DELETE', `/profile/${encodeURIComponent(userId)}/social/${platform}`),
 };

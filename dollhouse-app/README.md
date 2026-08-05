@@ -32,7 +32,12 @@ Mapped straight from the pitch deck:
 - **📊 Investor Dashboard** — live platform metrics (boards, likes, orders,
   subscriptions) next to the market-opportunity numbers from the deck.
 - **📢 The Pitch itself** — the full investor narrative, rendered as the
-  app's home page.
+  app's home page, with an illustrated pink dollhouse hero and "room" cards
+  (The Closet / The Living Room / Whole House) for navigating the marketplace.
+- **👤 Profile & Social Connections** — set a display name and connect demo
+  Instagram/TikTok/Pinterest/Facebook handles; boards can be shared to
+  Pinterest, Facebook, and X via real share-intent links, or copied as a
+  direct link (`#/boards/:id` deep-links straight to a board).
 
 ## Tech stack
 
@@ -64,7 +69,7 @@ dollhouse-app/
 │   ├── store.js            # In-memory runtime state (boards, orders, subs)
 │   ├── recommend.js        # Style-quiz scoring/recommendation engine
 │   └── routes/             # /api/products, /recommendations, /boards,
-│                           #   /designers, /checkout, /vip, /stats
+│                           #   /designers, /checkout, /vip, /stats, /profile
 └── public/
     ├── index.html
     ├── css/styles.css
@@ -93,6 +98,10 @@ dollhouse-app/
 | GET    | `/api/vip/tiers`                   | VIP box tiers                         |
 | POST   | `/api/vip/subscribe`               | Subscribe to a VIP box                |
 | GET    | `/api/stats`                       | Live + market metrics for investors   |
+| GET    | `/api/profile/:userId`             | Get (or create) a profile             |
+| PUT    | `/api/profile/:userId`             | Update display name                   |
+| POST   | `/api/profile/:userId/social/:platform` | Connect a social handle          |
+| DELETE | `/api/profile/:userId/social/:platform` | Disconnect a social account       |
 
 ## Notes / next steps for a real product
 
@@ -101,3 +110,5 @@ dollhouse-app/
 - Wire the marketplace commission & sponsored-placement logic into real
   payments (Stripe Connect for designer payouts is a natural fit).
 - Real product photography instead of CSS gradient swatches.
+- Replace demo "connect" with real OAuth (Instagram/TikTok/Pinterest/Facebook
+  login) once API credentials for each platform are available.

@@ -9,6 +9,7 @@ const designersRouter = require('./src/routes/designers');
 const cartRouter = require('./src/routes/cart');
 const vipRouter = require('./src/routes/vip');
 const statsRouter = require('./src/routes/stats');
+const profileRouter = require('./src/routes/profile');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -23,6 +24,7 @@ app.use('/api/designers', designersRouter);
 app.use('/api', cartRouter); // exposes /api/checkout and /api/checkout/orders
 app.use('/api/vip', vipRouter);
 app.use('/api/stats', statsRouter);
+app.use('/api/profile', profileRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 

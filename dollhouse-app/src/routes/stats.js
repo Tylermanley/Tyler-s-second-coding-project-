@@ -17,6 +17,10 @@ router.get('/', (req, res) => {
       totalComments: state.boards.reduce((s, b) => s + b.comments.length, 0),
       ordersPlaced: state.orders.length,
       activeSubscriptions: state.subscriptions.filter((s) => s.active).length,
+      connectedSocialAccounts: Object.values(state.profiles).reduce(
+        (sum, p) => sum + Object.values(p.social).filter((s) => s.connected).length,
+        0
+      ),
     },
     market: {
       aiFashionMarket2027B: 4.4,

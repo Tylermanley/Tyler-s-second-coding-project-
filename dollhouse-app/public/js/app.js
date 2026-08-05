@@ -26,6 +26,40 @@ const BUDGET_OPTIONS = [
   { id: 'mid', label: 'Mid-range', emoji: '💳' },
   { id: 'luxury', label: 'Luxury', emoji: '💎' },
 ];
+// Hand-drawn-style pink dollhouse illustration, inline SVG so no image assets are needed.
+const DOLLHOUSE_SVG = `
+<svg class="dollhouse-svg" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a pink dollhouse">
+  <ellipse cx="160" cy="278" rx="118" ry="14" fill="rgba(201,75,120,0.13)" />
+  <rect x="222" y="66" width="20" height="54" rx="2" fill="#c94b78" />
+  <rect x="217" y="60" width="30" height="10" rx="2" fill="#a83a63" />
+  <polygon points="34,122 160,36 286,122" fill="#f3b8cf" stroke="#c94b78" stroke-width="4" stroke-linejoin="round" />
+  <rect x="30" y="116" width="260" height="12" rx="6" fill="#c94b78" />
+  <rect x="58" y="126" width="204" height="146" rx="10" fill="#fdf3f6" stroke="#f3b8cf" stroke-width="4" />
+  <path d="M160 66 c-9,-11 -26,-4 -24,11 c1,10 15,18 24,26 c9,-8 23,-16 24,-26 c2,-15 -15,-22 -24,-11z" fill="#b9a6e8" />
+  <rect x="83" y="160" width="48" height="48" rx="6" fill="#f1ecfb" stroke="#d4af37" stroke-width="3" />
+  <line x1="107" y1="160" x2="107" y2="208" stroke="#d4af37" stroke-width="3" />
+  <line x1="83" y1="184" x2="131" y2="184" stroke="#d4af37" stroke-width="3" />
+  <rect x="189" y="160" width="48" height="48" rx="6" fill="#f1ecfb" stroke="#d4af37" stroke-width="3" />
+  <line x1="213" y1="160" x2="213" y2="208" stroke="#d4af37" stroke-width="3" />
+  <line x1="189" y1="184" x2="237" y2="184" stroke="#d4af37" stroke-width="3" />
+  <rect x="80" y="208" width="54" height="9" rx="4" fill="#e8779f" />
+  <rect x="186" y="208" width="54" height="9" rx="4" fill="#e8779f" />
+  <path d="M130 198 q30,-24 60,0 z" fill="#d4af37" />
+  <rect x="139" y="198" width="42" height="74" rx="19" fill="#e8779f" stroke="#c94b78" stroke-width="3" />
+  <circle cx="171" cy="237" r="3" fill="#fff" />
+  <g transform="translate(160,36)">
+    <circle cx="-9" cy="0" r="9" fill="#c94b78" />
+    <circle cx="9" cy="0" r="9" fill="#c94b78" />
+    <circle cx="0" cy="0" r="5.5" fill="#fdf3f6" />
+  </g>
+</svg>`;
+
+const SOCIAL_PLATFORMS = [
+  { id: 'instagram', label: 'Instagram', emoji: '📸', placeholder: 'yourhandle' },
+  { id: 'tiktok', label: 'TikTok', emoji: '🎵', placeholder: 'yourhandle' },
+  { id: 'pinterest', label: 'Pinterest', emoji: '📌', placeholder: 'yourhandle' },
+  { id: 'facebook', label: 'Facebook', emoji: '👍', placeholder: 'Your Page Name' },
+];
 
 // ---------- Local (guest) state ----------
 const LocalStore = {
@@ -113,6 +147,7 @@ const routes = {
   vip: renderVip,
   dashboard: renderDashboard,
   cart: renderCart,
+  profile: renderProfile,
 };
 
 function navigate(view) {
@@ -139,14 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-nav]').forEach((node) => {
     node.addEventListener('click', () => navigate(node.dataset.nav));
   });
-  document.getElementById('profileBtn').addEventListener('click', () => {
-    const name = prompt('What should we call you?', LocalStore.guestName === 'Guest' ? '' : LocalStore.guestName);
-    if (name && name.trim()) {
-      LocalStore.guestName = name.trim();
-      document.getElementById('profileName').textContent = name.trim();
-      toast(`Welcome, ${name.trim()}! 💖`);
-    }
-  });
   document.getElementById('profileName').textContent = LocalStore.guestName;
   updateCartBadge();
   router();
@@ -158,12 +185,21 @@ document.addEventListener('DOMContentLoaded', () => {
 function renderPitch(root) {
   root.innerHTML = `
     <section class="hero">
-      <h1>Dollhouse 🏠💗</h1>
-      <p class="tagline">The Ultimate AI-Powered Fashion &amp; Home Design Platform for Women.
-      AI curates your wardrobe and home decor seamlessly — delivered straight to your door.</p>
-      <div class="hero-cta">
-        <button class="btn btn-primary" data-nav="quiz">✨ Take the Style Quiz</button>
-        <button class="btn btn-secondary" data-nav="marketplace">🛍️ Browse the Marketplace</button>
+      <span class="hero-sparkle s1">✨</span>
+      <span class="hero-sparkle s2">💕</span>
+      <span class="hero-sparkle s3">🎀</span>
+      <span class="hero-sparkle s4">⭐</span>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <h1>Dollhouse 🏠💗</h1>
+          <p class="tagline">The Ultimate AI-Powered Fashion &amp; Home Design Platform for Women.
+          AI curates your wardrobe and home decor seamlessly — delivered straight to your door.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary" data-nav="quiz">✨ Take the Style Quiz</button>
+            <button class="btn btn-secondary" data-nav="marketplace">🛍️ Browse the Marketplace</button>
+          </div>
+        </div>
+        <div class="hero-visual">${DOLLHOUSE_SVG}</div>
       </div>
     </section>
 
@@ -396,6 +432,23 @@ function renderMarketplace(root) {
     <div class="section">
       <h2>🛍️ Marketplace</h2>
       <p class="subtitle">AI-curated fashion &amp; home decor from independent designers and trusted brands.</p>
+      <div class="room-picker">
+        <button class="room-card room-closet" data-room="fashion">
+          <span class="room-icon">🚪👗</span>
+          <span class="room-name">The Closet</span>
+          <span class="room-sub">Fashion</span>
+        </button>
+        <button class="room-card room-living" data-room="home">
+          <span class="room-icon">🛋️🏠</span>
+          <span class="room-name">The Living Room</span>
+          <span class="room-sub">Home Decor</span>
+        </button>
+        <button class="room-card room-all" data-room="all">
+          <span class="room-icon">🏠✨</span>
+          <span class="room-name">Whole House</span>
+          <span class="room-sub">Everything</span>
+        </button>
+      </div>
       <div class="filters-bar">
         <input type="text" id="searchInput" placeholder="Search products, designers…" />
         <select id="categorySelect">
@@ -429,18 +482,34 @@ function renderMarketplace(root) {
     clearTimeout(refresh._t);
     refresh._t = setTimeout(refresh, 250);
   });
-  root.querySelector('#categorySelect').addEventListener('change', (e) => { state.category = e.target.value; refresh(); });
+  root.querySelector('#categorySelect').addEventListener('change', (e) => { state.category = e.target.value; syncRoomActive(); refresh(); });
   root.querySelector('#vibeSelect').addEventListener('change', (e) => { state.vibe = e.target.value; refresh(); });
   root.querySelector('#paletteSelect').addEventListener('change', (e) => { state.palette = e.target.value; refresh(); });
   root.querySelector('#budgetSelect').addEventListener('change', (e) => { state.budget = e.target.value; refresh(); });
 
+  function syncRoomActive() {
+    root.querySelectorAll('.room-card').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.room === state.category);
+    });
+  }
+
+  root.querySelectorAll('.room-card').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.category = btn.dataset.room;
+      root.querySelector('#categorySelect').value = btn.dataset.room;
+      syncRoomActive();
+      refresh();
+    });
+  });
+
+  syncRoomActive();
   refresh();
 }
 
 // ============================================================
 // BOARDS VIEW (inspiration + social)
 // ============================================================
-async function renderBoards(root) {
+async function renderBoards(root, boardId) {
   root.innerHTML = `
     <div class="section">
       <h2>🎨 Boards</h2>
@@ -470,7 +539,8 @@ async function renderBoards(root) {
     boards.forEach((board) => grid.appendChild(renderBoardCard(board, load)));
   }
 
-  load();
+  await load();
+  if (boardId) openBoardDetail(boardId, load); // supports shareable links like #/boards/b-seed-1
 }
 
 function renderBoardCard(board, onChange) {
@@ -499,6 +569,29 @@ function renderBoardCard(board, onChange) {
   return card;
 }
 
+function boardShareUrl(board) {
+  return `${window.location.origin}${window.location.pathname}#/boards/${board.id}`;
+}
+
+function renderShareBar(board) {
+  const shareUrl = boardShareUrl(board);
+  const text = `Check out my "${board.title}" board on Dollhouse 🏠💕`;
+  const links = {
+    pinterest: `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&description=${encodeURIComponent(text)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,
+  };
+  return `
+    <div class="share-bar">
+      <span class="share-label">Share:</span>
+      <a class="share-btn pinterest" href="${links.pinterest}" target="_blank" rel="noopener">📌 Pinterest</a>
+      <a class="share-btn facebook" href="${links.facebook}" target="_blank" rel="noopener">👍 Facebook</a>
+      <a class="share-btn twitter" href="${links.twitter}" target="_blank" rel="noopener">🐦 X</a>
+      <button class="share-btn copy" data-action="copy-link" type="button">🔗 Copy Link</button>
+    </div>
+  `;
+}
+
 async function openBoardDetail(boardId, onChange) {
   const { board } = await Api.getBoard(boardId);
   const overlay = el(`
@@ -509,6 +602,7 @@ async function openBoardDetail(boardId, onChange) {
           <button class="btn btn-ghost btn-sm" id="closeModal">✕</button>
         </div>
         <p class="board-owner">by ${board.ownerName}</p>
+        ${renderShareBar(board)}
         <div class="grid-3" id="modalProducts" style="margin:14px 0;"></div>
         <h4>Comments</h4>
         <div class="comment-list" id="modalComments">
@@ -533,6 +627,14 @@ async function openBoardDetail(boardId, onChange) {
   overlay.querySelector('#closeModal').addEventListener('click', () => {
     overlay.remove();
     if (onChange) onChange();
+  });
+  overlay.querySelector('[data-action="copy-link"]').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(boardShareUrl(board));
+      toast('Board link copied! 🔗');
+    } catch {
+      toast(boardShareUrl(board));
+    }
   });
   overlay.querySelector('#commentSubmit').addEventListener('click', async () => {
     const input = overlay.querySelector('#commentInput');
@@ -665,6 +767,7 @@ async function renderDashboard(root) {
         <div class="card stat-box"><div class="num">${live.totalComments}</div><div class="label">Comments</div></div>
         <div class="card stat-box"><div class="num">${live.ordersPlaced}</div><div class="label">Orders placed</div></div>
         <div class="card stat-box"><div class="num">${live.activeSubscriptions}</div><div class="label">Active VIP subscriptions</div></div>
+        <div class="card stat-box"><div class="num">${live.connectedSocialAccounts}</div><div class="label">Social accounts connected</div></div>
       </div>
       <h3 style="margin-top:32px;">Market Opportunity</h3>
       <div class="grid-3">
@@ -767,5 +870,84 @@ async function renderCart(root) {
       </div>
     `;
     root.querySelector('[data-nav]').addEventListener('click', (e) => navigate(e.target.dataset.nav));
+  });
+}
+
+// ============================================================
+// PROFILE VIEW (display name + connect social accounts)
+// ============================================================
+async function renderProfile(root) {
+  const { profile } = await Api.getProfile(LocalStore.guestId);
+
+  root.innerHTML = `
+    <div class="section">
+      <h2>👤 Your Profile</h2>
+      <p class="subtitle">Manage your display name and connect your social accounts to share boards and get influencer-style recs.</p>
+
+      <div class="card" style="max-width:420px;margin-bottom:24px;">
+        <h3 style="margin-top:0;">Display Name</h3>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="displayNameInput" value="${profile.displayName}" style="flex:1;padding:10px 12px;border-radius:9px;border:1px solid var(--border);" />
+          <button class="btn btn-primary btn-sm" id="saveNameBtn">Save</button>
+        </div>
+      </div>
+
+      <h3>Connect Your Social Accounts</h3>
+      <p class="subtitle" style="margin-top:-8px;">Demo connections — link a handle so your boards can cross-post and friends can find you. No real account access is requested.</p>
+      <div class="grid-4" id="socialGrid"></div>
+    </div>
+  `;
+
+  root.querySelector('#saveNameBtn').addEventListener('click', async () => {
+    const val = root.querySelector('#displayNameInput').value.trim();
+    if (!val) return;
+    await Api.updateProfile(LocalStore.guestId, val);
+    LocalStore.guestName = val;
+    document.getElementById('profileName').textContent = val;
+    toast(`Saved! Hi, ${val} 💖`);
+  });
+
+  const grid = root.querySelector('#socialGrid');
+  SOCIAL_PLATFORMS.forEach((platform) => {
+    const account = profile.social[platform.id] || { connected: false, handle: '' };
+    const card = el(`
+      <div class="card social-card ${account.connected ? 'connected' : ''}">
+        <div class="social-emoji">${platform.emoji}</div>
+        <div class="social-label">${platform.label}</div>
+        ${
+          account.connected
+            ? `<div class="social-handle">@${account.handle}</div>
+               <span class="social-status">✅ Connected</span>
+               <button class="btn btn-ghost btn-sm" data-action="disconnect">Disconnect</button>`
+            : `<input type="text" class="social-input" placeholder="${platform.placeholder}" />
+               <button class="btn btn-secondary btn-sm" data-action="connect">Connect</button>`
+        }
+      </div>
+    `);
+
+    if (account.connected) {
+      card.querySelector('[data-action="disconnect"]').addEventListener('click', async () => {
+        await Api.disconnectSocial(LocalStore.guestId, platform.id);
+        toast(`Disconnected ${platform.label}`);
+        renderProfile(root);
+      });
+    } else {
+      const submit = async () => {
+        const input = card.querySelector('.social-input');
+        if (!input.value.trim()) {
+          input.focus();
+          return;
+        }
+        await Api.connectSocial(LocalStore.guestId, platform.id, input.value.trim());
+        toast(`Connected ${platform.label} 🎉`);
+        renderProfile(root);
+      };
+      card.querySelector('[data-action="connect"]').addEventListener('click', submit);
+      card.querySelector('.social-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submit();
+      });
+    }
+
+    grid.appendChild(card);
   });
 }
