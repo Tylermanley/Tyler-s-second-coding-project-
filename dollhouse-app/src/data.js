@@ -37,6 +37,7 @@ const PRODUCTS = [
   { id: 'p12', name: 'Pearl-embellished Clutch', category: 'fashion', subcategory: 'accessories', price: 96, vibes: ['glam', 'vintage'], palette: 'pastel', budgetTier: 'luxury', designer: d('d-mira'), sponsored: false, rating: 4.6, emoji: '👛', gradient: 'linear-gradient(135deg,#f3e6ee,#dcc4d8)' },
   { id: 'p13', name: 'Organic Cotton Lounge Set', category: 'fashion', subcategory: 'loungewear', price: 62, vibes: ['cozy', 'minimalist'], palette: 'neutral', budgetTier: 'budget', designer: d('d-luma'), sponsored: false, rating: 4.8, emoji: '🛋️', gradient: 'linear-gradient(135deg,#eee6da,#d9c9b3)' },
   { id: 'p14', name: 'Statement Puff-sleeve Gown', category: 'fashion', subcategory: 'dresses', price: 265, vibes: ['glam', 'vintage'], palette: 'bold', budgetTier: 'luxury', designer: d('d-atelier-vie'), sponsored: false, rating: 4.9, emoji: '👑', gradient: 'linear-gradient(135deg,#7a2048,#4a0f2c)' },
+  { id: 'p30', name: 'Woven Raffia Espadrille Wedges', category: 'fashion', subcategory: 'shoes', price: 78, vibes: ['coastal', 'boho'], palette: 'neutral', budgetTier: 'mid', designer: d('d-sable'), sponsored: false, rating: 4.6, emoji: '👡', gradient: 'linear-gradient(135deg,#e6cfa0,#b8925c)' },
 
   // ---------- HOME ----------
   { id: 'p15', name: 'Terracotta Ribbed Vase', category: 'home', subcategory: 'decor', price: 38, vibes: ['boho', 'minimalist'], palette: 'neutral', budgetTier: 'budget', designer: d('d-northbloom'), sponsored: false, rating: 4.6, emoji: '🏺', gradient: 'linear-gradient(135deg,#d98c5f,#a85c34)' },
