@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chrono Grove</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="logo">⏳ Chrono Grove</h1>
+    <div class="hud" id="hud"></div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="farm">🌱 Homestead</button>
+    <button class="tab" data-tab="portal">🌀 Time Portal</button>
+    <button class="tab" data-tab="museum">🏛️ Museum</button>
+    <button class="tab" data-tab="market">🛒 Market</button>
+    <button class="tab" data-tab="help">❔ Help</button>
+  </nav>
+
+  <main>
+    <section class="view active" id="view-farm"></section>
+    <section class="view" id="view-portal"></section>
+    <section class="view" id="view-museum"></section>
+    <section class="view" id="view-market"></section>
+    <section class="view" id="view-help"></section>
+  </main>
+
+  <div class="stage" id="stage"><div class="stage-inner" id="stageInner"></div></div>
+  <div class="toasts" id="toasts"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/puzzles.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/farm.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
