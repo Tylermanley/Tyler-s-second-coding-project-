@@ -15,8 +15,16 @@ const CHAR_STYLE = {
     irisTop: '#7a3e0a', irisBot: '#f5b53a', brow: '#14162a', defaultExpr: 'smirk', narrow: true,
   },
   peter: {
-    skin: '#fbe9e0', shade: '#e8cbbd', hair: '#f2e3a8', hairDark: '#c9b06a', hairShine: '#fffbe8',
-    irisTop: '#34404f', irisBot: '#b3c8dc', brow: '#b89c55', defaultExpr: 'smirk', narrow: true,
+    skin: '#fbe9e0', shade: '#e8cbbd', hair: '#ead9a0', hairDark: '#bfa463', hairShine: '#fffbe8',
+    irisTop: '#34404f', irisBot: '#b3c8dc', brow: '#a88c4c', defaultExpr: 'smirk', narrow: true,
+  },
+  alice: {
+    skin: '#fbe4d6', shade: '#ecc3ad', hair: '#3a2a3a', hairDark: '#1f1524', hairShine: '#8a74a0',
+    irisTop: '#1d3c7a', irisBot: '#7fb2ff', brow: '#2a1d2c', defaultExpr: 'smile',
+  },
+  quinn: {
+    skin: '#f5d2b8', shade: '#d9ab8c', hair: '#c3c6ce', hairDark: '#878b95', hairShine: '#ffffff',
+    irisTop: '#4a3210', irisBot: '#d4a443', brow: '#8e929c', defaultExpr: 'smile', narrow: true,
   },
   jane: {
     skin: '#e9b892', shade: '#cf946c', hair: '#cdd0d9', hairDark: '#8e93a3', hairShine: '#ffffff',
@@ -143,21 +151,74 @@ function charParts(id, st) {
     };
   }
   if (id === 'peter') {
+    // Dark-academia scholar: tousled fringe, wire glasses, tweed blazer, burgundy vest, striped tie
     return {
-      back: `<path d="M58 88 Q54 40 100 34 Q146 40 142 88 Q145 112 139 128 L61 128 Q55 112 58 88Z" fill="${st.hair}"/>`,
-      body: `<path d="M24 240 Q28 194 68 184 L88 180 L112 180 L132 184 Q172 194 176 240Z" fill="#1b1e2b"/>
-             <path d="M68 186 L76 160 L90 178Z M132 186 L124 160 L110 178Z" fill="#232838" stroke="#cfd8e3" stroke-width="2"/>
-             <path d="M88 180 L96 240 M112 180 L104 240" stroke="#cfd8e3" stroke-width="2.5"/>
-             <path d="M90 178 Q100 192 110 178 L106 202 Q100 210 94 202Z" fill="#bfe3ff"/>
-             <path d="M40 210 Q50 200 62 206 M138 206 Q150 200 160 210" stroke="#cfd8e3" stroke-width="1.5" fill="none" opacity=".7"/>
-             <g transform="translate(70 214)" stroke="#e8f4ff" stroke-width="1.8" stroke-linecap="round"><path d="M0 -7 L0 7 M-6 -3.5 L6 3.5 M-6 3.5 L6 -3.5"/></g>
-             <circle cx="70" cy="214" r="2" fill="#9fd4ff"/>`,
-      side: `<path d="M61 90 Q57 112 62 128 L67 118 Q64 104 67 94Z" fill="${st.hair}"/><path d="M139 90 Q143 112 138 128 L133 118 Q136 104 133 94Z" fill="${st.hair}"/>`,
-      front: `<path d="M58 94 Q54 42 100 36 Q146 42 142 94 Q140 76 131 67 Q112 56 90 59 Q72 63 64 80 Q60 86 58 94Z" fill="${st.hair}"/>
-              <path d="M70 70 Q96 54 128 62 M66 80 Q92 62 134 72 M74 64 Q100 50 124 56" stroke="${st.hairDark}" stroke-width="1.4" fill="none" opacity=".55"/>
-              <path d="M90 59 Q80 74 85 92 Q88 77 96 61Z" fill="${st.hair}"/><path d="M96 60 Q93 70 97 80 Q98 70 101 61Z" fill="${st.hair}"/>`,
-      shine: `<path d="M72 54 Q100 42 128 52 Q100 47 72 58Z" fill="${st.hairShine}" opacity=".9"/>`,
-      acc: `<path d="M68 99 L74 101 M126 101 L132 99" stroke="${st.shade}" stroke-width="1" opacity=".6"/>`,
+      back: `<path d="M58 88 Q54 40 100 34 Q146 40 142 88 Q146 114 140 132 L60 132 Q54 114 58 88Z" fill="${st.hair}"/>`,
+      body: `<path d="M24 240 Q28 194 68 184 L88 178 L112 178 L132 184 Q172 194 176 240Z" fill="#5b4632"/>
+             <g stroke="#7a6248" stroke-width="1" opacity=".45"><path d="M40 214 l8 -8 M48 222 l8 -8 M140 206 l8 8 M150 216 l8 8 M36 232 l8 -8 M152 230 l8 8"/></g>
+             <path d="M86 182 L100 208 L114 182 L116 240 L84 240Z" fill="#6b2433"/>
+             <path d="M88 186 L100 210 L112 186" stroke="#4e1824" stroke-width="2" fill="none"/>
+             <path d="M88 178 L83 189 L98 193Z M112 178 L117 189 L102 193Z" fill="#f6f1e6"/>
+             <path d="M96 186 L104 186 L103 193 L97 193Z" fill="#23284a"/>
+             <path d="M97 193 L103 193 L106 224 L100 232 L94 224Z" fill="#23284a"/>
+             <path d="M96 200 L104 203 M95 210 L105 213 M95 220 L105 223" stroke="#d9c79a" stroke-width="1.6"/>
+             <path d="M88 178 L70 193 L80 205 L74 212 L92 240 L97 240 L99 208Z" fill="#4a3826"/>
+             <path d="M112 178 L130 193 L120 205 L126 212 L108 240 L103 240 L101 208Z" fill="#4a3826"/>
+             <rect x="122" y="208" width="3" height="14" rx="1" fill="#d9b44a" transform="rotate(8 123 215)"/>
+             <g transform="translate(80 210)" stroke="#e8f4ff" stroke-width="1.6" stroke-linecap="round"><path d="M0 -6 L0 6 M-5 -3 L5 3 M-5 3 L5 -3"/></g>`,
+      side: `<path d="M61 90 Q56 114 62 132 L68 120 Q64 104 67 94Z" fill="${st.hair}"/><path d="M139 90 Q144 114 138 132 L132 120 Q136 104 133 94Z" fill="${st.hair}"/>`,
+      front: `<path d="M58 96 Q52 44 100 38 Q148 44 142 96 L138 80 Q134 90 127 95 Q130 80 122 71 Q114 88 98 93 Q108 80 104 68 Q92 86 74 90 Q81 80 80 71 Q68 84 62 98Z" fill="${st.hair}"/>
+              <path d="M104 68 Q110 78 98 93 M122 71 Q128 84 127 95 M80 71 Q78 82 74 90" stroke="${st.hairDark}" stroke-width="1.4" fill="none" opacity=".55"/>`,
+      shine: `<path d="M70 56 Q100 44 130 54 Q100 49 70 60Z" fill="${st.hairShine}" opacity=".85"/>`,
+      acc: `<g fill="rgba(220,235,255,.14)" stroke="#b8975a" stroke-width="1.8"><ellipse cx="80" cy="109" rx="16" ry="13.5"/><ellipse cx="120" cy="109" rx="16" ry="13.5"/></g>
+            <path d="M96 107 Q100 104 104 107 M64 106 L59 104 M136 106 L141 104" stroke="#b8975a" stroke-width="1.8" fill="none"/>
+            <path d="M70 101 L75 98 M110 101 L115 98" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".85"/>`,
+    };
+  }
+  if (id === 'alice') {
+    // Aristocratic mentor in a blue gown: elegant updo, tiara, pearls, sapphire brooch
+    return {
+      back: `<circle cx="100" cy="32" r="20" fill="${st.hair}"/><path d="M84 30 Q100 18 116 30" stroke="${st.hairDark}" stroke-width="2" fill="none" opacity=".6"/>
+             <path d="M58 88 Q54 42 100 36 Q146 42 142 88 Q144 112 138 126 L62 126 Q56 112 58 88Z" fill="${st.hair}"/>`,
+      body: `<path d="M24 240 Q28 196 66 186 L88 180 L112 180 L134 186 Q172 196 176 240Z" fill="#3d6fb6"/>
+             <ellipse cx="52" cy="198" rx="21" ry="13" fill="#4f82cc"/><ellipse cx="148" cy="198" rx="21" ry="13" fill="#4f82cc"/>
+             <path d="M80 188 L100 240 L120 188" fill="#2f5a99"/>
+             <path d="M80 188 L100 240 L120 188 M40 214 Q100 226 160 214" stroke="#e3c872" stroke-width="1.6" fill="none"/>
+             <path d="M86 170 Q100 180 114 170 L117 182 Q100 195 83 182Z" fill="#f4f6ff"/>
+             <path d="M84 182 q4 4 8 1 q4 4 8 1 q4 4 8 1 q4 4 8 1" stroke="#cfd6ec" stroke-width="1.2" fill="none"/>
+             <g fill="#fffdf6" stroke="#d9d2bf" stroke-width=".6">${[...Array(9)].map((_, i) => { const a = Math.PI * (0.15 + 0.7 * i / 8); return `<circle cx="${100 - 22 * Math.cos(a)}" cy="${186 + 10 * Math.sin(a)}" r="2.1"/>`; }).join('')}</g>
+             <path d="M100 196 L107 204 L100 212 L93 204Z" fill="#1f4fa8" stroke="#e3c872" stroke-width="1.8"/><path d="M98 200 L101 199" stroke="#fff" stroke-width="1.2"/>`,
+      side: `<path d="M63 92 Q56 122 63 152 Q68 142 66 132 Q61 114 69 96Z" fill="${st.hair}"/><path d="M137 92 Q144 122 137 152 Q132 142 134 132 Q139 114 131 96Z" fill="${st.hair}"/>`,
+      front: `<path d="M58 98 Q54 44 100 40 Q146 44 142 98 Q136 74 116 64 Q106 70 100 60 Q94 70 84 64 Q64 74 58 98Z" fill="${st.hair}"/>
+              <path d="M100 60 Q98 52 100 42 M116 64 Q128 72 136 86 M84 64 Q72 72 64 86" stroke="${st.hairDark}" stroke-width="1.4" fill="none" opacity=".6"/>`,
+      shine: `<path d="M72 56 Q100 44 128 56 Q100 50 72 60Z" fill="${st.hairShine}" opacity=".8"/>`,
+      acc: `<path d="M76 50 L82 40 L88 47 L94 36 L100 44 L106 36 L112 47 L118 40 L124 50 Q100 42 76 50Z" fill="#e8ecf5" stroke="#b9c2d6" stroke-width="1"/>
+            <path d="M100 38 L104 43 L100 48 L96 43Z" fill="#3a7bff" stroke="#fff" stroke-width=".8"/>
+            <circle cx="58" cy="124" r="3" fill="#fffdf6" stroke="#d9d2bf" stroke-width=".6"/><circle cx="142" cy="124" r="3" fill="#fffdf6" stroke="#d9d2bf" stroke-width=".6"/>`,
+    };
+  }
+  if (id === 'quinn') {
+    // Minister of the Treasury: silver hair, moustache, monocle, tailcoat, money-green waistcoat, gold coin pin
+    return {
+      back: `<path d="M60 86 Q56 42 100 36 Q144 42 140 86 Q142 108 136 120 L64 120 Q58 108 60 86Z" fill="${st.hair}"/>`,
+      body: `<path d="M24 240 Q28 194 68 184 L88 178 L112 178 L132 184 Q172 194 176 240Z" fill="#1c1c24"/>
+             <path d="M84 186 L92 240 L108 240 L116 186 L100 212Z" fill="#2f5a40"/>
+             <g fill="#e3b341"><circle cx="96" cy="222" r="2.2"/><circle cx="104" cy="222" r="2.2"/><circle cx="97" cy="233" r="2.2"/><circle cx="103" cy="233" r="2.2"/></g>
+             <path d="M90 228 Q100 236 112 224" stroke="#e3b341" stroke-width="1.6" fill="none"/>
+             <path d="M88 178 L72 194 L82 206 L76 212 L90 240 L92 240 L84 186Z M112 178 L128 194 L118 206 L124 212 L110 240 L108 240 L116 186Z" fill="#2a2a34" stroke="#c9a54a" stroke-width=".8"/>
+             <path d="M88 176 L100 190 L112 176 L110 171 L100 182 L90 171Z" fill="#fff"/>
+             <path d="M94 186 Q100 180 106 186 Q104 200 100 202 Q96 200 94 186Z" fill="#d9b44a"/>
+             <circle cx="100" cy="193" r="3.6" fill="#f6d77a" stroke="#a87f1e" stroke-width="1"/>
+             <circle cx="70" cy="214" r="5.5" fill="#e3b341" stroke="#a87f1e" stroke-width="1.2"/><circle cx="70" cy="214" r="2.6" fill="none" stroke="#a87f1e" stroke-width="1"/>`,
+      side: `<path d="M61 92 Q58 112 64 128 L68 112 Q65 102 66 94Z" fill="${st.hair}"/><path d="M139 92 Q142 112 136 128 L132 112 Q135 102 134 94Z" fill="${st.hair}"/>`,
+      front: `<path d="M60 96 Q56 46 100 40 Q144 46 140 96 Q138 76 126 66 Q100 58 80 64 Q66 72 60 96Z" fill="${st.hair}"/>
+              <path d="M80 64 Q100 56 126 66 M74 72 Q100 62 132 76" stroke="${st.hairDark}" stroke-width="1.3" fill="none" opacity=".6"/>`,
+      shine: `<path d="M74 54 Q100 44 126 52 Q100 49 74 58Z" fill="${st.hairShine}" opacity=".8"/>`,
+      acc: `<g stroke="${st.shade}" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".9"><path d="M84 76 Q100 72 116 76"/><path d="M70 121 Q78 124 86 121 M114 121 Q122 124 130 121"/></g>
+            <path d="M85 134 Q93 128 100 132 Q107 128 115 134 Q110 140 100 137 Q90 140 85 134Z" fill="${st.hairDark}"/>
+            <circle cx="120" cy="109" r="15" fill="rgba(220,240,255,.18)" stroke="#d9b44a" stroke-width="2.4"/>
+            <path d="M112 100 L117 97" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            <path d="M134 116 Q146 140 138 176" stroke="#d9b44a" stroke-width="1.3" fill="none"/>`,
     };
   }
   if (id === 'jane') {

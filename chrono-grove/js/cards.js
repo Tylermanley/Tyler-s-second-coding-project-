@@ -108,7 +108,7 @@ const BOSS_HINTS = {
   winters: [
     'Peter\'s Pickpocket steals a card from your deck for the rest of the fight. Play your strongest cards early, before he can swipe them!',
     'His Smug Riposte counters attack cards, just like the Oni. Block, heal or play skills while he poses.',
-    'When he starts to Gloat, Glacial Lance comes next. Freeze him mid-brag. He would absolutely hate that.',
+    'When he starts to Lecture, Glacial Lance comes next. Freeze him mid-sentence. He would absolutely hate that.',
   ],
   jane: [
     'Lady Jane\'s Plunder steals ALL of your Block and turns it into her own shield! When she\'s about to plunder, attack instead of blocking.',
@@ -146,13 +146,28 @@ function cardDesc(c, st) {
   return parts.join(' ');
 }
 
+// ---------- Lady Alice's Masterclass upgrades ----------
+function upgradeLevel(id) { return (S && S.upgrades && S.upgrades[id]) || 0; }
+function canUpgrade(id) { const c = CARDS[id]; return !!(c.dmg || c.block || c.heal); }
+function effCard(id) {
+  const base = CARDS[id];
+  const lv = upgradeLevel(id);
+  if (!lv) return base;
+  const m = 1 + 0.25 * lv;
+  const c = Object.assign({}, base, { name: base.name + '+'.repeat(lv) });
+  if (c.dmg) c.dmg = base.dmg * m;
+  if (c.block) c.block = Math.round(base.block * m);
+  if (c.heal) c.heal = base.heal * m;
+  return c;
+}
+
 function cardHTML(id, opts = {}) {
-  const c = CARDS[id];
+  const c = effCard(id);
   const st = opts.st || stats();
   const type = cardType(c);
   const attrs = opts.k !== undefined ? `data-k="${opts.k}"` : `data-card="${id}"`;
   const tag = opts.button ? 'button' : 'div';
-  return `<${tag} class="card ${type} ${c.rarity || 'common'} ${opts.cls || ''}" ${attrs} ${opts.disabled ? 'disabled' : ''} ${opts.style ? `style="${opts.style}"` : ''}>
+  return `<${tag} class="card ${type} ${c.rarity || 'common'} ${upgradeLevel(id) ? 'upgraded' : ''} ${opts.cls || ''}" ${attrs} ${opts.disabled ? 'disabled' : ''} ${opts.style ? `style="${opts.style}"` : ''}>
     <span class="card-cost">${c.cost}</span>
     ${opts.count !== undefined ? `<span class="card-count">×${opts.count}</span>` : ''}
     <span class="card-art">${c.art}</span>

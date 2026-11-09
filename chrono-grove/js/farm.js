@@ -129,10 +129,12 @@ function endDay() {
   if (S.partner === 'anna') { stash('items', 'potion', 1); partnerMsg = ' 💗 Anna left you a potion.'; }
   if (S.partner === 'cedric') { S.coins += 30; partnerMsg = ' 💗 Cedric added 🪙 30 to the coin jar.'; }
   resetDailyIfNeeded();
+  const mentorMsg = mentorMorning();
   saveGame();
   renderAll();
   const weatherMsg = { rain: '🌧️ It\'s raining — every crop is watered!', cloudy: '☁️ A cloudy, calm morning.', sunny: '☀️ A bright sunny morning.' }[S.weather];
-  toast(`Day ${S.day}. ${weatherMsg} ${grown ? `${grown} crop${grown > 1 ? 's' : ''} grew${ready ? `, ${ready} ready to harvest` : ''}.` : ''} ${st.gold ? `Artifacts earned 🪙 ${st.gold}.` : ''}${partnerMsg}`, 4500);
+  toast(`Day ${S.day}. ${weatherMsg} ${grown ? `${grown} crop${grown > 1 ? 's' : ''} grew${ready ? `, ${ready} ready to harvest` : ''}.` : ''} ${st.gold ? `Artifacts earned 🪙 ${st.gold}.` : ''}${partnerMsg} ${mentorMsg}`, 5000);
+  quinnArrivalCheck();
 }
 
 function tileView(t, i, sprinkled) {

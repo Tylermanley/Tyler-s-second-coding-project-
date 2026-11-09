@@ -184,6 +184,160 @@ const COMPANIONS = {
     battleLose: 'We\'ll regroup, refit the deck and sail back stronger.',
     quips: ['Play it like you mean it!', 'Ha! That\'s my partner.', 'Steady… wait for the right card.', 'I\'ve seen worse odds. Not many, but some.', 'A good captain knows when to raise the shields.', 'Here, an extra card from my sleeve. Don\'t tell anyone.'],
   },
+  alice: {
+    name: 'Lady Alice', title: 'Duchess of Bluewater, Royal Historical Society', home: '🫖 Bluewater Salon', icon: '🫖', mentor: true,
+    color: '#3d6fb6', bg: 'linear-gradient(160deg,#dfe9fb 0%,#8fb0e3 50%,#2b4a86 100%)',
+    loves: ['blossom', 'grape'], likes: ['carrot', 'pumpkin'],
+    unlock: () => !!S.bosses.egypt, unlockText: 'Defeat the Sandstone Sphinx to attract her attention.',
+    perks: [
+      { h: 0, text: 'Lessons: once a day, spend ⚡4 to gain XP. As support, Poise: you take 15% less damage.' },
+      { h: 1, text: 'Masterclass: upgrade your battle cards (level 1).' },
+      { h: 2, text: 'Letters of Introduction: gifts to other companions give +50% affection.' },
+      { h: 3, text: 'Royal Decree: once per battle, the boss loses its next action, its shield and all its power-ups.' },
+      { h: 5, text: 'Masterclass level 2, and lessons give double XP.' },
+      { h: 7, text: 'Perfect Poise: as support, you take 25% less damage.' },
+    ],
+    meet: [
+      N('A blue carriage drawn by white horses stops at your gate. A lady in an elegant sapphire gown steps down, parasol in hand.'),
+      L('alice', 'smile', 'Good day. I am Lady Alice, Duchess of Bluewater, and patron of the Royal Historical Society.'),
+      L('alice', 'surprised', 'Word travels fast: the new grove-keeper bested the Sandstone Sphinx! Without formal training, I am told.'),
+      L('alice', 'smile', 'Talent like yours deserves cultivation. Visit my salon whenever you wish. I shall give you lessons, and refine your battle technique.'),
+      L('alice', 'determined', 'And should you face a guardian, I would be honoured to stand beside you. A lady never flinches.'),
+    ],
+    talk: {
+      low: [
+        ['smile', 'Posture, darling. A straight back is half of any victory.'],
+        ['neutral', 'The Society\'s archives say your great-aunt once out-fenced a Venetian duke. In a ballgown.'],
+        ['smile', 'Tea at four, history at five, swordplay at six. A civilised schedule.'],
+      ],
+      mid: [
+        ['happy', 'You have improved remarkably. I may have to find harder lessons!'],
+        ['smile', 'Nobility is not a matter of birth, you know. It is a matter of what one does with one\'s hands.'],
+        ['neutral', 'I hear whispers at court about a young collector named Winters. Be careful whom you trust.'],
+      ],
+      high: [
+        ['happy', 'I wrote to the Queen about you. She was most impressed.'],
+        ['smile', 'Teaching you has reminded me why I fell in love with history in the first place.'],
+        ['blush', 'You are the student I always hoped to have. Don\'t tell anyone I said so.'],
+      ],
+      love: [
+        ['happy', 'If I had a child, I would wish them to be as brave as you. Now, chin up, you have work to do.'],
+        ['smile', 'My salon doors are always open to you. Always.'],
+      ],
+      again: ['smile', 'We have already spoken today, dear. Patience is also a lesson. Return tomorrow.'],
+    },
+    events: {
+      2: [
+        N('In the Bluewater Salon, Lady Alice hands you a wooden practice sword.'),
+        L('alice', 'determined', 'En garde! Show me what the Sphinx taught you.'),
+        N('After a flurry of strikes, she taps your shoulder and smiles.'),
+        L('alice', 'happy', 'Splendid! Raw, but splendid. I shall write letters of introduction to my friends. Everyone ought to know you.'),
+        N('✨ Letters of Introduction: gifts to other companions now give +50% affection.'),
+      ],
+      4: [
+        L('alice', 'sad', 'I must confess something. Peter Winters was once my student at the Academy.'),
+        L('alice', 'neutral', 'The brightest mind I ever taught. But he came to believe history belongs only to those who can afford it.'),
+        L('alice', 'determined', 'I failed him. I will not fail you.'),
+      ],
+      6: [
+        L('alice', 'smile', 'You have mastered everything I planned to teach. So I have written new lessons, just for you.'),
+        L('alice', 'happy', 'Advanced techniques of the old masters. Your cards will hit harder than ever.'),
+        N('✨ Masterclass level 2 unlocked, and lessons now give double XP.'),
+      ],
+      8: [
+        L('alice', 'blush', 'The Society has voted. You are to be named an honorary Fellow of the Royal Historical Society.'),
+        L('alice', 'happy', 'I nominated you myself, of course. It is the proudest day of my teaching life.'),
+        N('🎓 Lady Alice is proud to call you her student.'),
+      ],
+    },
+    gift: {
+      love: ['happy', 'How exquisite! You have impeccable taste, my dear.'],
+      like: ['smile', 'How very thoughtful. Thank you.'],
+      neutral: ['smile', 'A kind gesture is never wasted. Thank you.'],
+      again: ['smile', 'One gift a day is generous; two would be extravagant. Tomorrow, perhaps.'],
+    },
+    battleStart: 'Shoulders back, blade up. We face this together, with grace.',
+    battleWin: 'Magnificent! A victory worthy of a ballad.',
+    battleLose: 'A setback, not a defeat. We shall study and return.',
+    quips: ['Elegance, darling. Even in battle.', 'Remember your footwork!', 'Watch its intentions. A duel is a conversation.', 'Superb technique!', 'Breathe. Then strike.'],
+  },
+  quinn: {
+    name: 'Minister Quinn', title: 'Minister of the Royal Treasury', home: '🏦 Royal Treasury', icon: '🏦', mentor: true,
+    color: '#2f5a40', bg: 'linear-gradient(160deg,#f6ecd0 0%,#c9a54a 45%,#1f3a2b 100%)',
+    loves: ['melon', 'pumpkin'], likes: ['grape', 'wheat'],
+    unlock: () => S.day >= 3, unlockText: 'Arrives on Day 3 to inspect the grove.',
+    perks: [
+      { h: 0, text: 'Royal Bank: deposit coins and earn 3% interest every morning. As support, +50% coins from battles.' },
+      { h: 1, text: 'Trade Ventures: invest in a Spice Route caravan.' },
+      { h: 2, text: 'Patron\'s Discount: 10% off at the Market and Cedric\'s shop.' },
+      { h: 3, text: 'Hire Mercenaries: once per battle, spend 🪙100 to strike for 3× ATK. Unlocks the Silk Road venture.' },
+      { h: 4, text: 'Preferred Rates: bank interest rises to 5%.' },
+      { h: 5, text: 'Unlocks the Treasure Expedition venture.' },
+      { h: 8, text: 'Golden Parachute: losing a boss battle refunds your energy.' },
+    ],
+    meet: [
+      N('A gentleman in an immaculate tailcoat strolls through your field, inspecting every row through a gold monocle.'),
+      L('quinn', 'surprised', 'Remarkable. Positively remarkable. A grove full of priceless relics and not a single ledger in sight!'),
+      L('quinn', 'smile', 'Forgive me. Minister Quinn, of the Royal Treasury. I manage the Crown\'s fortunes, and I have an eye for value.'),
+      L('quinn', 'smile', 'Coins sitting in a jar are lazy coins. Deposit them with the Treasury and they\'ll earn interest every morning.'),
+      L('quinn', 'happy', 'I also back trade ventures across the centuries. Risky, but rewarding. And should you need muscle in a battle, money buys excellent mercenaries.'),
+    ],
+    talk: {
+      low: [
+        ['smile', 'Compound interest is the eighth wonder of the world. The other seven I\'ve audited personally.'],
+        ['neutral', 'Never spend your last coin, my friend. Spend your second-to-last, and invest the remainder.'],
+        ['smile', 'Your Time Wheat is trading very well at market this season. Excellent fundamentals.'],
+      ],
+      mid: [
+        ['happy', 'I ran the numbers on you. Your returns are extraordinary! Truly, a blue-chip investment.'],
+        ['smile', 'Wealth is a tool, like a spade or a sword. What matters is what you build with it.'],
+        ['neutral', 'Thirty years ago, a pirate queen sank half the Crown\'s treasure fleet. I still have the paperwork.'],
+      ],
+      high: [
+        ['happy', 'I\'ve added you to my will. Under "assets of sentimental value." It\'s a very short list.'],
+        ['smile', 'You remind me of myself at your age: ambitious, clever, and terrible at bookkeeping.'],
+        ['blush', 'The Treasury staff say I smile more since I met you. Nonsense. Smiling is unprofitable.'],
+      ],
+      love: [
+        ['happy', 'Of all my investments, you are the one I am proudest of.'],
+        ['smile', 'Whatever you need, the Treasury stands behind you. And so do I.'],
+      ],
+      again: ['smile', 'Time is money, and we\'ve spent ours today. Same time tomorrow?'],
+    },
+    events: {
+      2: [
+        L('quinn', 'smile', 'A little secret from the Treasury: I know every merchant in the kingdom, and every one of them owes me a favour.'),
+        L('quinn', 'happy', 'Mention my name and they will give you a discount. Ten percent, and not a copper less!'),
+        N('✨ Patron\'s Discount: 10% off at the Market and Cedric\'s shop.'),
+      ],
+      4: [
+        L('quinn', 'neutral', 'I began as a clerk, counting other people\'s coins in a cold back room. No title, no family name.'),
+        L('quinn', 'determined', 'Everything I have, I earned one ledger line at a time. Which is why I despise thieves above all else.'),
+        L('quinn', 'smile', 'I\'ve raised your bank rate to my preferred-client level. You\'ve earned it.'),
+        N('✨ Bank interest is now 5% per day.'),
+      ],
+      6: [
+        L('quinn', 'surprised', 'Ah! A map! A genuine treasure map, purchased at auction in 1702… well, next Tuesday, technically.'),
+        L('quinn', 'happy', 'I can think of no one better to finance an expedition with. Shall we go halves?'),
+        N('✨ The Treasure Expedition venture is now available.'),
+      ],
+      8: [
+        L('quinn', 'smile', 'I\'ve taken out an insurance policy on you. Should a battle go badly, the Treasury covers your costs.'),
+        L('quinn', 'blush', 'Purely a sound financial decision, of course. …And because I care what happens to you.'),
+        N('✨ Golden Parachute: losing a boss battle refunds your energy.'),
+      ],
+    },
+    gift: {
+      love: ['happy', 'A premium commodity! I\'d estimate its value at… priceless, coming from you.'],
+      like: ['smile', 'A solid, dependable gift. Much appreciated.'],
+      neutral: ['smile', 'It\'s the thought that counts. And I do count everything.'],
+      again: ['smile', 'Careful, one gift a day keeps your budget balanced.'],
+    },
+    battleStart: 'Let\'s make this profitable. I\'ve brought my chequebook.',
+    battleWin: 'A splendid return on investment! The spoils are yours, with a bonus.',
+    battleLose: 'Every market has downturns. We\'ll recover.',
+    quips: ['Diversify your attacks!', 'Buy low, strike high!', 'That card was an excellent investment.', 'Keep a reserve. Always keep a reserve.', 'I\'m calculating our odds… they\'re improving!'],
+  },
 };
 
 const HEART_EVENTS = [2, 4, 6, 8];
@@ -339,7 +493,8 @@ function giveGift(who, cropId) {
   const c = COMPANIONS[who];
   if (!takeFrom('produce', cropId)) return;
   const level = c.loves.includes(cropId) ? 'love' : c.likes.includes(cropId) ? 'like' : 'neutral';
-  const pts = { love: 30, like: 18, neutral: 10 }[level];
+  let pts = { love: 30, like: 18, neutral: 10 }[level];
+  if (who !== 'alice' && hearts('alice') >= 2) pts = Math.round(pts * 1.5);
   S.daily.gifted[who] = true;
   const gained = addAffection(who, pts);
   saveGame();
@@ -348,7 +503,7 @@ function giveGift(who, cropId) {
   playScene([N(`You give ${c.name} a ${CROPS[cropId].emoji} ${CROPS[cropId].name}.`), L(who, e, t)], () => { heartPopup(who, gained, pts); renderAll(); });
 }
 
-function canPropose(who) { return !S.partner && hearts(who) >= 8 && S.locket > 0; }
+function canPropose(who) { return !COMPANIONS[who].mentor && !S.partner && hearts(who) >= 8 && S.locket > 0; }
 
 function proposeTo(who) {
   if (!canPropose(who)) return;
@@ -376,47 +531,57 @@ function heartRow(who) {
   const h = hearts(who);
   const frac = (S.rel[who].pts % 10) / 10;
   return `<div class="hearts" title="${S.rel[who].pts}/100 affection">${[...Array(10)].map((_, i) =>
-    `<span class="heart ${i < h ? 'on' : ''}">${i < h ? '♥' : '♡'}</span>`).join('')}
+    COMPANIONS[who].mentor ? `<span class="heart star ${i < h ? 'on' : ''}">${i < h ? '★' : '☆'}</span>` : `<span class="heart ${i < h ? 'on' : ''}">${i < h ? '♥' : '♡'}</span>`).join('')}
     ${h < 10 ? `<span class="heart-progress"><span style="width:${frac * 100}%"></span></span>` : ''}</div>`;
 }
 
 // ---------- companions tab ----------
+function compCard(who) {
+  const c = COMPANIONS[who];
+  const met = S.rel[who].met;
+  const available = !c.unlock || c.unlock();
+  const expr = S.partner === who ? 'blush' : hearts(who) >= 6 ? 'happy' : CHAR_STYLE[who].defaultExpr;
+  const visit = { anna: ['library', '📚 Visit Library'], cedric: ['ship', '⚓ Board the Gull'], alice: ['salon', '🫖 Visit Salon'], quinn: ['treasury', '🏦 Royal Treasury'] }[who];
+  const unit = c.mentor ? '★' : '♥';
+  return `
+    <div class="comp-card ${c.mentor ? 'mentor' : ''}" style="--c:${c.color}">
+      <div class="comp-scene" style="background:${c.bg}">
+        <div class="comp-portrait ${met ? '' : 'silhouette'}">${portraitSVG(who, expr)}</div>
+        ${S.support === who ? '<span class="comp-badge">🤝 Support</span>' : ''}
+        ${S.partner === who ? '<span class="comp-badge partner">💍 Partner</span>' : ''}
+        ${c.mentor ? '<span class="comp-badge partner mentor-badge">🎓 Mentor</span>' : ''}
+      </div>
+      <div class="comp-info">
+        <h3>${met ? c.name : '???'} <small class="muted">${c.title}</small></h3>
+        ${met ? heartRow(who) : `<p class="muted">${available ? `Ready to meet at the ${c.home.slice(2)}.` : c.unlockText}</p>`}
+        ${met ? `<ul class="perks">${c.perks.map(p => `<li class="${perkUnlocked(who, p) ? 'on' : ''}">${perkUnlocked(who, p) ? '✔' : (p.h === 'partner' ? '💍' : `${p.h}${unit}`)} ${p.text}</li>`).join('')}</ul>` : ''}
+        <div class="comp-actions">
+          ${met ? `
+            <button class="btn small" onclick="talkTo('${who}')">💬 Talk${S.daily.talked[who] ? ' ✓' : ''}</button>
+            <button class="btn small" onclick="openGiftPicker('${who}')">🎁 Gift${S.daily.gifted[who] ? ' ✓' : ''}</button>
+            <button class="btn small primary" onclick="compView='${visit[0]}';renderAll()">${visit[1]}</button>
+            <button class="btn small ${S.support === who ? 'danger' : ''}" onclick="setSupport('${who}')">${S.support === who ? 'Remove support' : '🤝 Set as support'}</button>
+            ${canPropose(who) ? `<button class="btn small love" onclick="proposeTo('${who}')">💍 Give Chrono Locket</button>` : ''}
+          ` : `<button class="btn primary" ${available ? '' : 'disabled'} onclick="meetCompanion('${who}')">${available ? `${c.icon} Meet ${c.name}` : '🔒 Not yet'}</button>`}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderCompanions() {
   const view = document.getElementById('view-town');
   if (compView === 'library') return renderLibrary(view);
   if (compView === 'ship') return renderShip(view);
+  if (compView === 'salon') return renderSalon(view);
+  if (compView === 'treasury') return renderTreasury(view);
   resetDailyIfNeeded();
   view.innerHTML = `
     <h2 class="view-title">💞 Companions</h2>
     <p class="muted center">Bring one companion into each boss battle as support. Talk every day, give gifts, and fight side by side to grow closer.</p>
-    <div class="comp-list">
-      ${Object.entries(COMPANIONS).map(([who, c]) => {
-        const met = S.rel[who].met;
-        const expr = S.partner === who ? 'blush' : hearts(who) >= 6 ? 'happy' : CHAR_STYLE[who].defaultExpr;
-        return `
-        <div class="comp-card" style="--c:${c.color}">
-          <div class="comp-scene" style="background:${c.bg}">
-            <div class="comp-portrait ${met ? '' : 'silhouette'}">${portraitSVG(who, expr)}</div>
-            ${S.support === who ? '<span class="comp-badge">🤝 Support</span>' : ''}
-            ${S.partner === who ? '<span class="comp-badge partner">💍 Partner</span>' : ''}
-          </div>
-          <div class="comp-info">
-            <h3>${met ? c.name : '???'} <small class="muted">${c.title}</small></h3>
-            ${met ? heartRow(who) : `<p class="muted">Visit the ${c.home.slice(2)} to meet them.</p>`}
-            ${met ? `<ul class="perks">${c.perks.map(p => `<li class="${perkUnlocked(who, p) ? 'on' : ''}">${perkUnlocked(who, p) ? '✔' : (p.h === 'partner' ? '💍' : `${p.h}♥`)} ${p.text}</li>`).join('')}</ul>` : ''}
-            <div class="comp-actions">
-              ${met ? `
-                <button class="btn small" onclick="talkTo('${who}')">💬 Talk${S.daily.talked[who] ? ' ✓' : ''}</button>
-                <button class="btn small" onclick="openGiftPicker('${who}')">🎁 Gift${S.daily.gifted[who] ? ' ✓' : ''}</button>
-                <button class="btn small primary" onclick="compView='${who === 'anna' ? 'library' : 'ship'}';renderAll()">${who === 'anna' ? '📚 Visit Library' : '⚓ Board the Gull'}</button>
-                <button class="btn small ${S.support === who ? 'danger' : ''}" onclick="setSupport('${who}')">${S.support === who ? 'Remove support' : '🤝 Set as support'}</button>
-                ${canPropose(who) ? `<button class="btn small love" onclick="proposeTo('${who}')">💍 Give Chrono Locket</button>` : ''}
-              ` : `<button class="btn primary" onclick="meetCompanion('${who}')">${c.icon} Meet ${c.name}</button>`}
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
+    <h3 class="section-title">💞 Companions <small class="muted">Friends and possible romance</small></h3>
+    <div class="comp-list">${['anna', 'cedric'].map(compCard).join('')}</div>
+    <h3 class="section-title">🎓 Mentors <small class="muted">Aristocratic patrons who guide your journey</small></h3>
+    <div class="comp-list">${['alice', 'quinn'].map(compCard).join('')}</div>`;
 }
 
 function backBar(who, line) {
@@ -502,7 +667,7 @@ function renderShip(view) {
           return `<div class="shop-card ${locked ? 'locked' : ''}">
             ${cardHTML(sc.id, { st })}
             ${locked ? `<button class="btn small" disabled>🔒 ${sc.hearts}♥</button>`
-              : `<button class="btn small primary" ${S.coins < sc.price ? 'disabled' : ''} onclick="buyCard('${sc.id}',${sc.price})">🪙 ${sc.price}</button>`}
+              : `<button class="btn small primary" ${S.coins < price(sc.price) ? 'disabled' : ''} onclick="buyCard('${sc.id}',${sc.price})">🪙 ${price(sc.price)}</button>`}
           </div>`;
         }).join('')}
       </div>`}
@@ -522,9 +687,10 @@ function renderShip(view) {
     </section>`;
 }
 
-function buyCard(id, price) {
-  if (S.coins < price || S.shipStolen) return;
-  S.coins -= price;
+function buyCard(id, base) {
+  const cost = price(base);
+  if (S.coins < cost || S.shipStolen) return;
+  S.coins -= cost;
   grantCard(id);
   toast(`🃏 Cedric hands you <b>${CARDS[id].name}</b>. "Pleasure doing business!"`);
   saveGame(); renderAll();

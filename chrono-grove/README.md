@@ -27,7 +27,11 @@ There's no build step and nothing to install. Open `index.html` in any modern br
   - **Anna, the librarian.** Your satchel holds 10 items, and anything that won't fit goes into Anna's archive. She keeps notes on every guardian. As your battle support she reads the boss's next move and gives live advice every turn. With more hearts she unlocks a healing Remedy, extra satchel pockets and a protective ward.
   - **Cedric, the merchant and ship captain.** He forges a battle card for every puzzle you solve and every boss you defeat, and he sells rare cards on his ship. You build your deck there. As your battle support he deals you an extra card each turn, and later his ship fires a cannon Broadside.
   - **Romance.** Talk to them daily, give gifts (each has favourite crops) and fight side by side to earn hearts. Heart-event scenes unlock at 2, 4, 6 and 8♥. At 8♥, give a Chrono Locket to become partners. Your partner moves into the homestead, brings a daily gift and gives you a special card.
-- **Final villains:** Peter Winters is a smug, platinum-blond aristocrat with ice magic who collects other people's history. Lady Jane is a silver-haired former Pirate Queen with an eye patch, and she was Cedric's old captain. Both appear in earlier story scenes. After you defeat the Time Devourer, they pull off a heist: Peter steals the Hourglass and several displayed artifacts, and Jane steals Cedric's ship, the Gilded Gull. That closes his shop and silences his cannons. Get everything back in two final boss battles:
+- **Mentors:**
+  - **Lady Alice**, Duchess of Bluewater, is an aristocrat in a sapphire gown. She gives daily lessons for XP and runs a Masterclass that upgrades cards by up to 50%. As support she reduces the damage you take, and her Royal Decree makes a boss lose its next action, its shield and its power-ups. She was Peter's tutor.
+  - **Minister Quinn**, of the Royal Treasury, has a monocle and a coin pin. He runs a bank that pays interest every morning and three risk/reward trade ventures, and he gives 10% discounts. As support he adds +50% battle coins and can pay 🪙100 for a mercenary strike. He posts a bounty on Lady Jane.
+  - Mentors earn ★ rapport through talks, gifts and battles, with new perks and story scenes at each level.
+- **Final villains:** Peter Winters is a smug, platinum-blond dark-academia scholar with wire glasses, a tweed blazer and ice magic, who collects other people's history. Lady Jane is a silver-haired former Pirate Queen with an eye patch, and she was Cedric's old captain. Both appear in earlier story scenes. After you defeat the Time Devourer, they pull off a heist: Peter steals the Hourglass and several displayed artifacts, and Jane steals Cedric's ship, the Gilded Gull. That closes his shop and silences his cannons. Get everything back in two final boss battles:
   - **Peter:** his Pickpocket steals cards from your deck mid-fight.
   - **Jane:** her Plunder turns your Block into her shield.
 - **Anime-style characters:** Animated SVG portraits blink, breathe, sway and lip-flap while talking. They have expressions with blushes, emotes and sparkles. Conversations play as visual-novel scenes with a typewriter effect and speed lines, and big moves in battle trigger special-move cut-ins.
@@ -61,6 +65,7 @@ chrono-grove/
     ├── battle.js     # turn-based card combat engine and cut-ins
     ├── companions.js # Anna and Cedric: dialogue scenes, romance, library, ship
     ├── villains.js   # Peter Winters and Lady Jane: story scenes, heist, finale
+    ├── mentors.js    # Lady Alice's salon and Minister Quinn's treasury
     ├── farm.js       # homestead grid, tools, day cycle
     └── main.js     # header, tabs, portal, museum, market, help
 ```

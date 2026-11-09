@@ -585,3 +585,26 @@ main { max-width: 1180px; margin: 0 auto; padding: 16px; }
 }
 .heist-banner .btn { margin-left: 8px; }
 @keyframes pulseGlow { 50% { box-shadow: 0 0 0 2px #ff6b5a, 0 0 22px rgba(255,107,90,.6); } }
+
+/* ============================================================
+   Mentors
+   ============================================================ */
+.section-title { margin: 22px 0 10px; font-size: 1.15rem; }
+.section-title small { font-weight: normal; font-size: .8rem; }
+.comp-card.mentor { background: linear-gradient(#fffaf0, #f7f1e3); }
+.mentor-badge { background: #e6eefc !important; color: #2b4a86 !important; }
+.heart.star { color: #e7d29a; }
+.heart.star.on { color: #e3a91f; text-shadow: 0 0 6px rgba(240,180,40,.6); }
+.bank-figure { font-size: 2rem; font-weight: 900; color: #2f5a40; margin: 6px 0; }
+.bank-figure small { display: block; font-size: .78rem; font-weight: normal; color: var(--muted); }
+.venture-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.venture { background: #fff; border: 2px solid #e3c872; border-radius: 14px; padding: 12px; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.venture.locked { opacity: .55; filter: grayscale(.7); }
+.venture small { color: var(--muted); }
+.v-icon { font-size: 2.4rem; }
+.v-stats { font-size: .8rem; font-weight: bold; color: #2f5a40; }
+.hint-box-list { padding-left: 18px; font-size: .88rem; line-height: 1.5; }
+.card.upgraded .card-name { color: #1f4fa8; }
+.card.upgraded::before { content: '★'; position: absolute; top: 3px; left: 22px; color: #e3a91f; font-size: .8rem; }
+.cutin-alice .cutin-band { background: linear-gradient(90deg, #13254a, #3d6fb6 40%, #dfe9fb 100%); }
+.cutin-quinn .cutin-band { background: linear-gradient(90deg, #102018, #2f5a40 40%, #e3b341 100%); }

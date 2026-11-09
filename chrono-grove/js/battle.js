@@ -109,7 +109,7 @@ function startPlayerTurn() {
   h.cp = BASE_CP + (B.turn === 1 && supportPerk('cedric', 6) ? 1 : 0);
   drawCards(HAND_SIZE + (B.support === 'cedric' ? 1 : 0));
   if (B.support === 'anna') B.bubble = annaHint();
-  else if (B.support === 'cedric' && B.turn > 1) B.bubble = COMPANIONS.cedric.quips[Math.floor(Math.random() * COMPANIONS.cedric.quips.length)];
+  else if (B.support && COMPANIONS[B.support].quips && B.turn > 1) { const q = COMPANIONS[B.support].quips; B.bubble = q[Math.floor(Math.random() * q.length)]; }
   B.heroExpr = h.hp < h.maxHp * 0.3 ? 'sad' : 'determined';
   B.busy = false;
   renderBattle();
@@ -181,6 +181,7 @@ function bossRaw(mult) {
 // Applies Block first; returns damage actually taken
 function hitHero(dmg) {
   const h = B.hero;
+  if (B.support === 'alice') dmg = Math.max(1, Math.round(dmg * (hearts('alice') >= 7 ? 0.75 : 0.85)));
   const blocked = Math.min(h.block, dmg);
   h.block -= blocked;
   const taken = dmg - blocked;
@@ -205,7 +206,7 @@ function playCard(k) {
   const i = B.hand.findIndex(c => c.k === k);
   if (i < 0) return;
   const card = B.hand[i];
-  const c = CARDS[card.id];
+  const c = effCard(card.id);
   const h = B.hero;
   if (h.cp < c.cost) return;
   h.cp -= c.cost;
@@ -275,6 +276,23 @@ function useSupport() {
     h.burn = 0; h.weak = 0;
     addLog(`💗 Anna's Remedy heals ${amt} HP and cleanses your ailments!`, 'ally');
     B.bubble = 'Hold still, I\'ve got you!';
+  } else if (B.support === 'alice') {
+    cutIn('alice', 'Royal Decree!', '👑');
+    B.frozen = true;
+    const lost = [];
+    if (B.shield) { lost.push(`its ${B.shield}-point shield`); B.shield = 0; }
+    if (B.atkMod > 1) { lost.push('all its power-ups'); B.atkMod = 1; }
+    addLog(`👑 Lady Alice issues a Royal Decree! ${B.boss.name} must yield its next action${lost.length ? ` and loses ${lost.join(' and ')}` : ''}!`, 'ally');
+    B.bubble = 'By order of the Duchess of Bluewater: kneel!';
+  } else if (B.support === 'quinn') {
+    if (S.coins < 100) { B.supportUsed = false; return; }
+    S.coins -= 100;
+    saveGame();
+    cutIn('quinn', 'Hire Mercenaries!', '💰');
+    const d = heroDamage(3, true);
+    const r = hitBoss(d.dmg, 2);
+    addLog(`💰 Minister Quinn pays 🪙100 for a band of mercenaries, who strike for ${r.dealt} damage!`, 'ally');
+    B.bubble = 'Money well spent! Put it on the Treasury\'s tab.';
   } else {
     const mult = S.partner === 'cedric' ? 4 : 2.5;
     cutIn('cedric', 'Broadside! FIRE!', '💥');
@@ -416,7 +434,8 @@ function endBattle(won) {
   if (won) {
     const first = !S.bosses[era.id];
     S.bosses[era.id] = true;
-    const coins = first ? boss.coins : Math.round(boss.coins / 3);
+    let coins = first ? boss.coins : Math.round(boss.coins / 3);
+    if (support === 'quinn') coins = Math.round(coins * 1.5);
     const xp = first ? boss.xp : Math.round(boss.xp / 3);
     S.coins += coins;
     const levels = grantXp(xp);
@@ -445,8 +464,11 @@ function endBattle(won) {
       ${era.id === 'winters' && first ? '<p class="warn">❄️ Peter dropped your stolen artifacts! They\'re back in your storage.</p>' : ''}
       ${era.ending && first ? '<p class="warn">🏆 You defeated the Pirate Queen and won back the Gilded Gull! Your grove is safe and history is whole. Keep farming, collecting and spending time with the people you love.</p>' : ''}`;
   } else {
+    const refund = S.rel.quinn && S.rel.quinn.met && hearts('quinn') >= 8;
+    if (refund) S.energy += BOSS_ENERGY;
     body = `
       <h2>💫 Defeated…</h2>
+      ${refund ? `<p class="reward-line">🏦 Golden Parachute: Minister Quinn's insurance refunds your ⚡${BOSS_ENERGY} energy.</p>` : ''}
       <p>${boss.name} hurls you back through the rift to your homestead.</p>
       ${support ? `<div class="anna-hint">${portraitSVG(support, 'sad', { crop: 'head', cls: 'mini' })}<p><b>${COMPANIONS[support].name}:</b> ${COMPANIONS[support].battleLose}</p></div>` : ''}
       <p class="muted">Tips: read Anna's Guardian Notes, buy stronger cards from Cedric, add more Block to your deck, display more artifacts, and level up through puzzles.</p>`;
@@ -520,8 +542,10 @@ function renderBattle() {
   const sup = B.support ? COMPANIONS[B.support] : null;
   const shipGone = B.support === 'cedric' && S.shipStolen;
   const canAbility = sup && hearts(B.support) >= 3 && !shipGone;
-  const abilityName = B.support === 'anna' ? '💗 Remedy' : '💥 Broadside';
-  const supExpr = B.support === 'anna' ? (danger ? 'surprised' : B.hero.hp < B.hero.maxHp * 0.35 ? 'sad' : 'determined') : (danger ? 'determined' : 'smirk');
+  const abilityName = { anna: '💗 Remedy', cedric: '💥 Broadside', alice: '👑 Royal Decree', quinn: '💰 Mercenaries (🪙100)' }[B.support] || '';
+  const supExpr = B.support === 'anna' ? (danger ? 'surprised' : B.hero.hp < B.hero.maxHp * 0.35 ? 'sad' : 'determined')
+    : B.support === 'cedric' ? (danger ? 'determined' : 'smirk') : (danger ? 'determined' : 'smile');
+  const quinnBroke = B.support === 'quinn' && S.coins < 100;
   const fan = B.hand.length;
 
   openStage(`
@@ -546,7 +570,7 @@ function renderBattle() {
         <div class="ally-box">
           <div class="ally-portrait">${portraitSVG(B.support, supExpr, { crop: 'bust', talking: false })}</div>
           <div class="ally-bubble"><b>${sup.name}</b><span>${B.bubble}</span></div>
-          ${canAbility ? `<button class="btn small ally-btn" ${dis || B.supportUsed ? 'disabled' : ''} onclick="useSupport()">${B.supportUsed ? 'Used' : abilityName}</button>` : shipGone ? '<small class="muted">⚓ No ship, no cannons!</small>' : `<small class="muted">Reach 3♥ to unlock ${abilityName}</small>`}
+          ${canAbility ? `<button class="btn small ally-btn" ${dis || B.supportUsed || quinnBroke ? 'disabled' : ''} onclick="useSupport()">${B.supportUsed ? 'Used' : quinnBroke ? 'Need 🪙100' : abilityName}</button>` : shipGone ? '<small class="muted">⚓ No ship, no cannons!</small>' : `<small class="muted">Reach 3${sup.mentor ? '★' : '♥'} to unlock ${abilityName}</small>`}
         </div>` : ''}
       </div>
       <div class="battle-log" id="battleLog">${B.log.slice(-6).map(l => `<div class="log ${l.cls}">${l.msg}</div>`).join('')}</div>

@@ -12,14 +12,17 @@ function charInfo(who) { return COMPANIONS[who] || VILLAINS[who] || null; }
 let pendingStory = null;
 
 const STORY = {
+  meetAlice: () => { S.rel.alice.met = true; return COMPANIONS.alice.meet; },
   // After the first Greece victory: the rival appears
   peterIntro: () => [
     N('As you step out of the portal, slow sarcastic clapping echoes across your field. Frost creeps over the grass.'),
     L('peter', 'smirk', 'Bravo. Truly. A farmer who plays archaeologist. How quaint.'),
+    N('A young man in a tweed blazer and wire-rimmed glasses snaps a leather-bound book shut.'),
     L('peter', 'neutral', 'Peter Winters, of the Winters family. You\'ve surely heard of us. We were collecting history while your little grove was still a weed patch.'),
     L('peter', 'smirk', 'Relics like these are wasted in the dirt. They belong in a proper collection. Mine, naturally.'),
     L('anna', 'surprised', 'Who was THAT? He left frost all over my returned books!'),
     N('Before you can answer, Peter vanishes in a swirl of snowflakes, laughing.'),
+    ...(mentorMet('alice') ? [L('alice', 'sad', 'Peter Winters… my former student at the Academy. Brilliant, and so very lost. Be on your guard, my dear.')] : []),
   ],
   // After the first Japan victory: the old pirate returns
   janeIntro: () => [
@@ -42,6 +45,8 @@ const STORY = {
     L('jane', 'smirk', 'Language, boy. A pirate never retires. She just waits for the right score.'),
     L('peter', 'determined', 'The artifacts are going to Winters Manor. If you want them back, come and beg. Ta-ta!'),
     L('anna', 'determined', 'They can\'t get away with this! I traced the portal frost. Winters Manor is open in the Time Portal. Let\'s take everything back!'),
+    ...(mentorMet('quinn') ? [L('quinn', 'determined', 'Jane! The same pirate who sank the Crown\'s treasure fleet thirty years ago! The Treasury is posting a bounty: 🪙1,000 for the Gilded Gull\'s return.')] : []),
+    ...(mentorMet('alice') ? [L('alice', 'determined', 'And Peter is my responsibility. I taught him to love history. You must teach him humility.')] : []),
     N(`⚠️ Peter stole ${S.stolen.length} artifacts and Lady Jane stole the Gilded Gull! Cedric's card shop is closed and his cannons are silent until the ship is recovered.`),
   ],
   peterDefeat: () => [
@@ -49,6 +54,7 @@ const STORY = {
     L('peter', 'determined', 'Fine! Take your dusty trinkets! The Winters name doesn\'t lose to farmers… it simply postpones winning.'),
     L('peter', 'blush', '…You fought well. For a farmer. Don\'t let it go to your head.'),
     N('Peter drops every stolen artifact and flees in a puff of frost. They\'re back in your storage, ready to display again.'),
+    ...(mentorMet('alice') ? [L('alice', 'smile', 'There is hope for him yet. Even the most brilliant fools can learn humility. Thank you, my dear.')] : []),
     L('cedric', 'determined', 'One down. Now let\'s get my ship back. Jane\'s anchored off the storm coast, and the rift is open in the Portal.'),
   ],
   finale: () => {
@@ -59,6 +65,7 @@ const STORY = {
       L('jane', 'happy', 'And you, grove-keeper: fight like that and you\'d have made a fine pirate. Keep my old flag. You\'ve earned it.'),
       N('⚓ The Gilded Gull is yours again! Cedric\'s shop reopens and his cannons are ready.'),
     ];
+    if (S.story.bountyPaid) lines.push(L('quinn', 'happy', 'As promised, the Crown\'s bounty: 🪙1,000! And a personal note of thanks from the Treasury. The fleet is finally avenged.'));
     if (S.partner === 'anna') lines.push(L('anna', 'happy', 'You saved history AND our home. I\'m writing the final chapter tonight… and starting volume two tomorrow. Together.'));
     else if (S.partner === 'cedric') lines.push(L('cedric', 'blush', 'My ship, my grove, and you. A captain couldn\'t ask for a richer treasure.'));
     else lines.push(L('anna', 'happy', 'I\'m adding a whole new shelf to the archive: "The Grove-Keeper\'s Adventures"!'), L('cedric', 'happy', 'Drinks on the Gull! Even you, Jane. Just this once.'));
@@ -77,6 +84,7 @@ function playStory(key, onDone) {
 function triggerHeist() {
   if (S.heistStarted) return;
   S.heistStarted = true;
+  if (mentorMet('quinn')) S.bounty = true;
   const placed = shuffle(S.plot.map((t, i) => (t.t === 'artifact' && t.id !== 'hourglass' ? i : -1)).filter(i => i >= 0)).slice(0, 3);
   const stolen = [];
   if (S.artifacts.includes('hourglass')) stolen.push('hourglass');
@@ -95,11 +103,16 @@ function returnStolenArtifacts() {
 
 // Called from endBattle on a first victory
 function storyAfterBoss(eraId) {
+  if (eraId === 'egypt' && !mentorMet('alice')) return 'meetAlice';
   if (eraId === 'greece' && !S.story.peterIntro) return 'peterIntro';
   if (eraId === 'japan' && !S.story.janeIntro) return 'janeIntro';
   if (eraId === 'end' && !S.heistStarted) { triggerHeist(); return 'heist'; }
   if (eraId === 'winters') { returnStolenArtifacts(); return 'peterDefeat'; }
-  if (eraId === 'jane') { S.shipStolen = false; return 'finale'; }
+  if (eraId === 'jane') {
+    S.shipStolen = false;
+    if (S.bounty) { S.coins += 1000; S.bounty = false; S.story.bountyPaid = true; }
+    return 'finale';
+  }
   return null;
 }
 

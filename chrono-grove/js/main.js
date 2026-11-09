@@ -140,7 +140,7 @@ function renderMuseum() {
 // ---------- Market ----------
 function forgeCost(kind) {
   const n = kind === 'atk' ? S.hero.forgeAtk : S.hero.forgeDef;
-  return 80 + n * 70;
+  return price(80 + n * 70);
 }
 
 function renderMarket() {
@@ -150,6 +150,7 @@ function renderMarket() {
   const anyMet = S.rel.anna.met || S.rel.cedric.met;
   view.innerHTML = `
     <h2 class="view-title">🛒 Village Market</h2>
+    ${mentorMet('quinn') && hearts('quinn') >= 2 ? '<p class="center muted">🏦 Minister Quinn\'s Patron\'s Discount: 10% off everything.</p>' : ''}
     <div class="market-grid">
       <section class="panel">
         <h3>📦 Sell Produce</h3>
@@ -165,7 +166,7 @@ function renderMarket() {
           const ok = cropUnlocked(id);
           return `<div class="shop-row ${ok ? '' : 'locked'}">
             <span>${c.emoji} <b>${c.name}</b><small>${ok ? `${c.days} days · sells 🪙${c.sell} · own ×${S.seeds[id] || 0}` : `Unlocks after defeating the ${ERA_BY_ID[c.unlock].name} boss`}</small></span>
-            ${ok ? `<span class="buy-btns"><button class="btn small" ${S.coins < c.cost ? 'disabled' : ''} onclick="buySeed('${id}',1)">🪙${c.cost}</button><button class="btn small" ${S.coins < c.cost * 5 ? 'disabled' : ''} onclick="buySeed('${id}',5)">×5</button></span>` : '<span>🔒</span>'}
+            ${ok ? `<span class="buy-btns"><button class="btn small" ${S.coins < price(c.cost) ? 'disabled' : ''} onclick="buySeed('${id}',1)">🪙${price(c.cost)}</button><button class="btn small" ${S.coins < price(c.cost * 5) ? 'disabled' : ''} onclick="buySeed('${id}',5)">×5</button></span>` : '<span>🔒</span>'}
           </div>`;
         }).join('')}
       </section>
@@ -173,12 +174,12 @@ function renderMarket() {
         <h3>🎒 Adventuring Supplies</h3>
         ${Object.entries(SHOP_ITEMS).map(([id, it]) => `
           <div class="shop-row"><span>${it.emoji} <b>${it.name}</b><small>${it.desc} · satchel ×${S.items[id] || 0} · archive ×${S.library.items[id] || 0}</small></span>
-          <button class="btn small" ${S.coins < it.cost ? 'disabled' : ''} onclick="buyItem('${id}')">🪙${it.cost}</button></div>`).join('')}
+          <button class="btn small" ${S.coins < price(it.cost) ? 'disabled' : ''} onclick="buyItem('${id}')">🪙${price(it.cost)}</button></div>`).join('')}
       </section>
       ${anyMet ? `<section class="panel">
         <h3>💝 Jeweller</h3>
         <div class="shop-row"><span>${LOCKET.emoji} <b>${LOCKET.name}</b><small>${LOCKET.desc} · own ×${S.locket}</small></span>
-          <button class="btn small love" ${S.coins < LOCKET.cost || S.partner ? 'disabled' : ''} onclick="buyLocket()">🪙${LOCKET.cost}</button></div>
+          <button class="btn small love" ${S.coins < price(LOCKET.cost) || S.partner ? 'disabled' : ''} onclick="buyLocket()">🪙${price(LOCKET.cost)}</button></div>
         ${S.partner ? `<p class="muted small">💍 You and ${COMPANIONS[S.partner].name} are partners.</p>` : ''}
       </section>` : ''}
       <section class="panel">
@@ -198,8 +199,8 @@ function sellOne(id) {
 }
 
 function buyLocket() {
-  if (S.coins < LOCKET.cost || S.partner) return;
-  S.coins -= LOCKET.cost;
+  if (S.coins < price(LOCKET.cost) || S.partner) return;
+  S.coins -= price(LOCKET.cost);
   S.locket++;
   toast('💍 You bought a Chrono Locket. Give it to someone special at 8♥.');
   saveGame(); renderAll();
@@ -214,7 +215,7 @@ function sellAll() {
 }
 
 function buySeed(id, n) {
-  const cost = CROPS[id].cost * n;
+  const cost = price(CROPS[id].cost * n);
   if (S.coins < cost || !cropUnlocked(id)) return;
   S.coins -= cost;
   S.seeds[id] = (S.seeds[id] || 0) + n;
@@ -223,8 +224,8 @@ function buySeed(id, n) {
 
 function buyItem(id) {
   const it = SHOP_ITEMS[id];
-  if (S.coins < it.cost) return;
-  S.coins -= it.cost;
+  if (S.coins < price(it.cost)) return;
+  S.coins -= price(it.cost);
   const where = stash('items', id, 1);
   toast(where.toLib ? `Bought ${it.emoji} ${it.name}. Your satchel is full, so Anna stored it in the archive.` : `Bought ${it.emoji} ${it.name}.`);
   saveGame(); renderAll();
@@ -263,6 +264,8 @@ function renderHelp() {
       </ul>
       <h3>💞 Companions</h3>
       <p><b>Anna</b>, the librarian, keeps everything that won't fit in your satchel in her archive and studies every guardian. As support she gives live hints each turn, and with more hearts she heals and shields you. <b>Cedric</b>, the merchant captain, forges and sells battle cards. As support he deals you an extra card each turn and later fires his ship's cannons.</p>
+      <h3>🎓 Mentors</h3>
+      <p><b>Lady Alice</b>, Duchess of Bluewater, arrives after your first boss victory. She gives daily lessons for XP and a <b>Masterclass</b> that upgrades your cards. As support she reduces the damage you take and can issue a <b>Royal Decree</b>. <b>Minister Quinn</b> of the Royal Treasury arrives on Day 3. He runs a <b>bank</b> that pays interest every morning and <b>trade ventures</b> that may multiply your coins, and he gets you discounts. As support he boosts battle coin rewards and can hire mercenaries. Mentors earn ★ rapport instead of romance hearts.</p>
       <h3>🦹 Rivals</h3>
       <p>Watch out for <b>Peter Winters</b>, an arrogant young collector with ice magic, and <b>Lady Jane</b>, a legendary pirate who wants her old ship back. Peter's <b>Pickpocket</b> steals cards from your deck during battle, and Jane's <b>Plunder</b> steals your Block. Ask Anna for her notes before you face them.</p>
       <p>Talk to them daily, give gifts (each has favourite crops) and bring them into battle to raise their hearts. Heart events unlock at 2, 4, 6 and 8♥. At 8♥, give a Chrono Locket from the Market to become partners.</p>

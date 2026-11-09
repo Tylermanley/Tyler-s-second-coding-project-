@@ -38,7 +38,7 @@ function newState() {
     library: { items: {}, produce: {} },
     cards: Object.assign({}, STARTER_DECK),
     deck: Object.assign({}, STARTER_DECK),
-    rel: { anna: { pts: 0, met: false, events: [] }, cedric: { pts: 0, met: false, events: [] } },
+    rel: { anna: { pts: 0, met: false, events: [] }, cedric: { pts: 0, met: false, events: [] }, alice: { pts: 0, met: false, events: [] }, quinn: { pts: 0, met: false, events: [] } },
     partner: null,
     support: null,
     locket: 0,
@@ -48,6 +48,11 @@ function newState() {
     shipStolen: false,
     heistStarted: false,
     story: {},
+    // Mentors
+    bank: 0,
+    ventures: [],
+    upgrades: {},
+    bounty: false,
   };
 }
 
@@ -148,6 +153,7 @@ function spendEnergy(n) {
 
 // Older saves: hand out cards for puzzles and bosses already cleared
 function syncProgress(st) {
+  ['anna', 'cedric', 'alice', 'quinn'].forEach(w => { if (!st.rel[w]) st.rel[w] = { pts: 0, met: false, events: [] }; });
   for (const pid in st.puzzles) {
     const cid = PUZZLE_CARDS[pid];
     if (cid && !st.cards[cid]) { st.cards[cid] = 1; if (deckSize(st) < DECK_MAX) st.deck[cid] = (st.deck[cid] || 0) + 1; }

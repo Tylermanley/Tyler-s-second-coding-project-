@@ -219,7 +219,7 @@ const ERAS = [
     puzzles: [],
     boss: {
       name: 'Peter Winters', portrait: 'peter', emoji: '❄️', hp: 1600, atk: 30, def: 10, xp: 700, coins: 1200, relic: 'frostcrown',
-      intro: '"You actually came? How adorable. Let\'s make this quick. I have a portrait sitting at four."',
+      intro: '"You actually came? How adorable. Do sit. I was just annotating a first edition, and this won\'t take long."',
       phaseText: 'Peter\'s perfect hair falls out of place. He is FURIOUS! "Do you have ANY idea who my family is?!"',
       supportLines: { anna: 'He froze my reading room! This is personal now!', cedric: 'Pretty boy\'s got quick fingers. Watch your deck!' },
       moves: {
@@ -228,7 +228,7 @@ const ERAS = [
         parry:   { name: 'Smug Riposte',    kind: 'stance' },
         frost:   { name: 'Frostbite',       kind: 'weaken', mult: 0.7, turns: 2 },
         mirror:  { name: 'Ice Mirror',      kind: 'shield', pct: 0.09 },
-        gloat:   { name: 'Gloat',           kind: 'charge', text: 'flips his hair and brags about his family fortune… frost gathers on his blade!' },
+        gloat:   { name: 'Lecture',         kind: 'charge', text: 'pushes up his glasses and lectures you on your "inferior scholarship"… frost gathers on his blade!' },
         lance:   { name: 'Glacial Lance',   kind: 'attack', mult: 2.6, heavy: true },
         tantrum: { name: 'Tantrum',         kind: 'buff',   atkUp: 0.35 },
       },
