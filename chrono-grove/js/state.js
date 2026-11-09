@@ -43,6 +43,11 @@ function newState() {
     support: null,
     locket: 0,
     daily: { day: 1, talked: {}, gifted: {} },
+    // Final villains
+    stolen: [],
+    shipStolen: false,
+    heistStarted: false,
+    story: {},
   };
 }
 
@@ -121,6 +126,7 @@ function eraIndex(eraId) { return ERAS.findIndex(e => e.id === eraId); }
 function eraUnlocked(era) {
   const i = eraIndex(era.id);
   if (i === 0) return true;
+  if (era.requires) return !!S.bosses[era.requires];
   if (era.final) return ERAS.filter(e => !e.final).every(e => S.bosses[e.id]);
   return !!S.bosses[ERAS[i - 1].id];
 }

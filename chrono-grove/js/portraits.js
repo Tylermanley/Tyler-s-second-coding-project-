@@ -14,6 +14,14 @@ const CHAR_STYLE = {
     skin: '#f3c9a3', shade: '#dfa67f', hair: '#262a42', hairDark: '#14162a', hairShine: '#5c6690',
     irisTop: '#7a3e0a', irisBot: '#f5b53a', brow: '#14162a', defaultExpr: 'smirk', narrow: true,
   },
+  peter: {
+    skin: '#fbe9e0', shade: '#e8cbbd', hair: '#f2e3a8', hairDark: '#c9b06a', hairShine: '#fffbe8',
+    irisTop: '#34404f', irisBot: '#b3c8dc', brow: '#b89c55', defaultExpr: 'smirk', narrow: true,
+  },
+  jane: {
+    skin: '#e9b892', shade: '#cf946c', hair: '#cdd0d9', hairDark: '#8e93a3', hairShine: '#ffffff',
+    irisTop: '#1f4f4f', irisBot: '#63b8ad', brow: '#7d8290', defaultExpr: 'smirk', narrow: true,
+  },
   hero: {
     skin: '#fbe0cc', shade: '#ecbfa3', hair: '#6a4428', hairDark: '#45291a', hairShine: '#b07a4e',
     irisTop: '#1d3f8a', irisBot: '#74b8ff', brow: '#45291a', defaultExpr: 'determined',
@@ -132,6 +140,52 @@ function charParts(id, st) {
             <g transform="translate(100 40)" fill="#e3b341"><path d="M0 -9 L2.6 -3 L9 -3 L4 1 L6 8 L0 4 L-6 8 L-4 1 L-9 -3 L-2.6 -3Z"/></g>
             <circle cx="58" cy="120" r="2.8" fill="none" stroke="#e3b341" stroke-width="1.8"/>
             <path d="M126 125 L134 119" stroke="#c98a6a" stroke-width="1.8" stroke-linecap="round"/>`,
+    };
+  }
+  if (id === 'peter') {
+    return {
+      back: `<path d="M58 88 Q54 40 100 34 Q146 40 142 88 Q145 112 139 128 L61 128 Q55 112 58 88Z" fill="${st.hair}"/>`,
+      body: `<path d="M24 240 Q28 194 68 184 L88 180 L112 180 L132 184 Q172 194 176 240Z" fill="#1b1e2b"/>
+             <path d="M68 186 L76 160 L90 178Z M132 186 L124 160 L110 178Z" fill="#232838" stroke="#cfd8e3" stroke-width="2"/>
+             <path d="M88 180 L96 240 M112 180 L104 240" stroke="#cfd8e3" stroke-width="2.5"/>
+             <path d="M90 178 Q100 192 110 178 L106 202 Q100 210 94 202Z" fill="#bfe3ff"/>
+             <path d="M40 210 Q50 200 62 206 M138 206 Q150 200 160 210" stroke="#cfd8e3" stroke-width="1.5" fill="none" opacity=".7"/>
+             <g transform="translate(70 214)" stroke="#e8f4ff" stroke-width="1.8" stroke-linecap="round"><path d="M0 -7 L0 7 M-6 -3.5 L6 3.5 M-6 3.5 L6 -3.5"/></g>
+             <circle cx="70" cy="214" r="2" fill="#9fd4ff"/>`,
+      side: `<path d="M61 90 Q57 112 62 128 L67 118 Q64 104 67 94Z" fill="${st.hair}"/><path d="M139 90 Q143 112 138 128 L133 118 Q136 104 133 94Z" fill="${st.hair}"/>`,
+      front: `<path d="M58 94 Q54 42 100 36 Q146 42 142 94 Q140 76 131 67 Q112 56 90 59 Q72 63 64 80 Q60 86 58 94Z" fill="${st.hair}"/>
+              <path d="M70 70 Q96 54 128 62 M66 80 Q92 62 134 72 M74 64 Q100 50 124 56" stroke="${st.hairDark}" stroke-width="1.4" fill="none" opacity=".55"/>
+              <path d="M90 59 Q80 74 85 92 Q88 77 96 61Z" fill="${st.hair}"/><path d="M96 60 Q93 70 97 80 Q98 70 101 61Z" fill="${st.hair}"/>`,
+      shine: `<path d="M72 54 Q100 42 128 52 Q100 47 72 58Z" fill="${st.hairShine}" opacity=".9"/>`,
+      acc: `<path d="M68 99 L74 101 M126 101 L132 99" stroke="${st.shade}" stroke-width="1" opacity=".6"/>`,
+    };
+  }
+  if (id === 'jane') {
+    return {
+      back: `<path d="M54 84 Q48 36 100 30 Q152 36 146 84 Q154 130 158 190 Q148 204 134 196 Q140 160 130 146 L70 146 Q60 160 66 196 Q52 204 42 190 Q46 130 54 84Z" fill="${st.hair}"/>
+             <path d="M60 110 Q54 150 60 190 M140 110 Q146 150 140 190" stroke="${st.hairDark}" stroke-width="2" fill="none" opacity=".6"/>`,
+      body: `<path d="M22 240 Q26 192 66 182 L88 178 L112 178 L134 182 Q174 192 178 240Z" fill="#8e1f2a"/>
+             <path d="M66 182 Q56 210 60 240 M134 182 Q144 210 140 240" stroke="#e3b341" stroke-width="3" fill="none"/>
+             <path d="M86 178 Q78 190 86 196 Q78 204 88 210 L100 222 L112 210 Q122 204 114 196 Q122 190 114 178Z" fill="#fffaf2" stroke="#e5d9c3" stroke-width="1"/>
+             <path d="M94 186 Q100 190 106 186 M93 198 Q100 202 107 198" stroke="#d8cbb2" stroke-width="1.2" fill="none"/>
+             <path d="M24 226 Q100 206 176 226 L178 240 L22 240Z" fill="#2b1a12"/><rect x="92" y="219" width="16" height="12" rx="2" fill="#e3b341"/>`,
+      side: `<path d="M60 88 Q50 134 58 182 Q66 172 70 160 Q62 128 68 96Z" fill="${st.hair}"/><path d="M140 88 Q150 134 142 182 Q134 172 130 160 Q138 128 132 96Z" fill="${st.hair}"/>`,
+      front: `<path d="M57 98 Q52 46 100 40 Q148 46 143 98 Q138 80 126 70 Q118 84 104 88 Q112 76 108 66 Q92 84 70 86 Q78 78 80 70 Q64 80 57 98Z" fill="${st.hair}"/>
+              <path d="M108 66 Q118 74 126 70 M80 70 Q74 80 70 86" stroke="${st.hairDark}" stroke-width="1.5" fill="none" opacity=".6"/>`,
+      shine: `<path d="M76 56 Q100 46 124 54 Q100 50 76 60Z" fill="${st.hairShine}" opacity=".7"/>`,
+      acc: `<g stroke="${st.shade}" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".9">
+              <path d="M85 131 Q82 139 87 146"/><path d="M115 131 Q118 139 113 146"/>
+              <path d="M136 104 l5 -2 M136 109 l6 0 M136 114 l5 2"/><path d="M110 120 Q120 123 130 119"/></g>
+            <path d="M118 124 L132 132" stroke="#b9774f" stroke-width="2" stroke-linecap="round"/>
+            <path d="M92 101 L120 70" stroke="#1a1012" stroke-width="2.4"/><path d="M67 104 L56 99" stroke="#1a1012" stroke-width="2.4"/>
+            <ellipse cx="80" cy="109" rx="15" ry="13" fill="#1a1012"/><ellipse cx="76" cy="104" rx="5" ry="3" fill="#4a3a3c" opacity=".7"/>
+            <circle cx="141" cy="122" r="4.5" fill="none" stroke="#e3b341" stroke-width="2.2"/>
+            <path d="M48 70 Q56 26 100 22 Q144 26 152 70Z" fill="#4a1520"/>
+            <path d="M22 74 Q60 40 100 52 Q140 40 178 74 Q164 86 142 74 Q100 60 58 74 Q36 86 22 74Z" fill="#3a0f18" stroke="#e3b341" stroke-width="2.5"/>
+            <path d="M52 64 Q100 50 148 64" stroke="#e3b341" stroke-width="3" fill="none"/>
+            <path d="M126 48 Q160 10 186 22 Q166 24 150 40 Q170 30 182 38 Q160 40 142 56Z" fill="#d6454f"/>
+            <path d="M132 50 Q158 26 180 26" stroke="#9e2a33" stroke-width="1.4" fill="none"/>
+            <g transform="translate(100 40)"><circle r="7" fill="#f3efe6"/><circle cx="-2.5" cy="-1" r="1.6" fill="#3a0f18"/><circle cx="2.5" cy="-1" r="1.6" fill="#3a0f18"/><path d="M-9 9 L9 -2 M9 9 L-9 -2" stroke="#f3efe6" stroke-width="2"/></g>`,
     };
   }
   // hero

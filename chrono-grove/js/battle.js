@@ -22,7 +22,7 @@ function openBossIntro(eraId) {
   const hint = S.support === 'anna' ? BOSS_HINTS[era.id][0] : null;
   openStage(`
     <div class="stage-card intro wide" style="--era:${era.color}">
-      <div class="intro-icon boss-float">${boss.emoji}</div>
+      ${boss.portrait ? `<div class="villain-intro">${portraitSVG(boss.portrait, 'smirk', { crop: 'bust' })}</div>` : `<div class="intro-icon boss-float">${boss.emoji}</div>`}
       <h2>${boss.name}</h2>
       <p class="muted">${era.name} · ${era.year}</p>
       <p><i>${boss.intro}</i></p>
@@ -65,7 +65,8 @@ function startBattle(eraId) {
     phase: 1, idx: 0, intent: null,
     hero: { hp: st.maxHp, maxHp: st.maxHp, atk: st.atk, def: st.def, cp: 0, block: 0, burn: 0, burnDmg: 0, weak: 0 },
     drawPile: shuffle(deckList()).map(id => ({ id, k: ++_cardK })), hand: [], discard: [], exhausted: [],
-    support, supportUsed: false, bubble: support ? COMPANIONS[support].battleStart : '',
+    support, supportUsed: false, stolen: [],
+    bubble: support ? ((era.boss.supportLines && era.boss.supportLines[support]) || COMPANIONS[support].battleStart) : '',
     log: [], busy: false, over: false, turn: 1, menu: null, heroExpr: 'determined',
   };
   B.intent = nextIntent();
@@ -137,6 +138,8 @@ function annaHint() {
     case 'burn': tip = `Fire attack, about ${expectedHit(m)} damage plus burning. Holy Light, Rewind or my Remedy will cleanse it.`; break;
     case 'weaken': tip = `It will weaken your attacks (about ${expectedHit(m)} damage). Block now and save your big hits.`; break;
     case 'heal': tip = 'It\'s going to repair itself. Pour on the damage, and burn helps too!'; break;
+    case 'steal': tip = 'He\'s about to pick your pocket and steal a card from your deck! Play your best cards right now.'; break;
+    case 'plunder': tip = `Plunder! She\'ll steal ALL your Block for her shield, then hit for about ${expectedHit(m)}. Attack instead of blocking!`; break;
     default: tip = 'It\'s off-balance after that counter. Free hits!';
   }
   if (B.shield) tip += ` (Its shield has ${B.shield}. ⚡ cards break shields twice as fast.)`;
@@ -262,6 +265,7 @@ function useItem(id) {
 
 function useSupport() {
   if (!B || B.busy || B.over || B.supportUsed || !B.support || hearts(B.support) < 3) return;
+  if (B.support === 'cedric' && S.shipStolen) return;
   B.supportUsed = true;
   const h = B.hero;
   if (B.support === 'anna') {
@@ -322,7 +326,7 @@ function bossTurn() {
         let taken = 0, blocked = 0;
         for (let i = 0; i < hits; i++) { const r = hitHero(bossRaw(m.mult)); taken += r.taken; blocked += r.blocked; }
         addLog(`${m.heavy ? '💥 ' : ''}${name} uses ${m.name}${hits > 1 ? ` (${hits} hits)` : ''}: ${taken} damage${blocked ? `, ${blocked} blocked` : ''}.`, 'boss');
-        if (m.heavy) impactFlash();
+        if (m.heavy) { if (B.boss.portrait) cutIn(B.boss.portrait, m.name, '⚠️'); impactFlash(); }
         break;
       }
       case 'burn': {
@@ -352,6 +356,26 @@ function bossTurn() {
         B.hp += amt;
         floatNum('bossBox', `+${amt}`, 'heal');
         addLog(`💚 ${name} uses ${m.name} and recovers ${amt} HP.`, 'boss');
+        break;
+      }
+      case 'steal': {
+        const r = hitHero(bossRaw(m.mult));
+        const pile = B.drawPile.length ? B.drawPile : B.discard;
+        let msg = `🫳 ${name} uses ${m.name}: ${r.taken} damage`;
+        if (pile.length) {
+          const card = pile.splice(Math.floor(Math.random() * pile.length), 1)[0];
+          B.stolen.push(card);
+          msg += `, and pockets your ${CARDS[card.id].art} ${CARDS[card.id].name} card!`;
+        } else msg += ', but finds nothing to steal!';
+        addLog(msg, 'boss');
+        break;
+      }
+      case 'plunder': {
+        const took = h.block;
+        h.block = 0;
+        if (took) { B.shield += took; floatNum('heroBox', `Plundered ${took}!`, 'block'); }
+        const r = hitHero(bossRaw(m.mult));
+        addLog(`🏴‍☠️ ${name} uses ${m.name}${took ? `, stealing your ${took} Block as her shield,` : ''} and strikes for ${r.taken}!`, 'boss');
         break;
       }
       case 'stance': addLog(`${name} lowers its guard, finding no opening.`, 'sys'); break;
@@ -408,7 +432,8 @@ function endBattle(won) {
     const unlocks = [];
     if (first && nextEra && eraUnlocked(nextEra)) unlocks.push(`🌀 New era unlocked: <b>${nextEra.name}</b>`);
     if (first) Object.entries(CROPS).forEach(([id, c]) => { if (c.unlock === era.id) unlocks.push(`🌱 New seeds in the Market: <b>${c.emoji} ${c.name}</b>`); });
-    if (era.final && first) S.won = true;
+    if (era.ending && first) S.won = true;
+    if (first) pendingStory = storyAfterBoss(era.id);
     body = `
       <h2>🏆 Victory!</h2>
       <p>${boss.name} has been defeated in ${B.turn} turns.</p>
@@ -416,7 +441,9 @@ function endBattle(won) {
       ${relicHtml}
       <p class="reward-line">🪙 +${coins} &nbsp; ✨ +${xp} XP ${levels ? `&nbsp; <b>⬆️ Level ${S.hero.level}!</b>` : ''}</p>
       ${unlocks.map(u => `<p>${u}</p>`).join('')}
-      ${era.final && first ? '<p class="warn">⏳ You have saved all of history! Your grove is now a living museum of the ages. Keep farming, collecting and spending time with the people you love.</p>' : ''}`;
+      ${era.id === 'end' && first ? '<p class="warn">⏳ The Devourer is gone and history is safe… but frost is spreading across your homestead. Something is wrong!</p>' : ''}
+      ${era.id === 'winters' && first ? '<p class="warn">❄️ Peter dropped your stolen artifacts! They\'re back in your storage.</p>' : ''}
+      ${era.ending && first ? '<p class="warn">🏆 You defeated the Pirate Queen and won back the Gilded Gull! Your grove is safe and history is whole. Keep farming, collecting and spending time with the people you love.</p>' : ''}`;
   } else {
     body = `
       <h2>💫 Defeated…</h2>
@@ -430,7 +457,7 @@ function endBattle(won) {
       <div class="stage-card intro" style="--era:${era.color}">
         ${body}
         <div class="btn-row">
-          <button class="btn primary" onclick="closeStage(); showTab('${won ? 'farm' : 'portal'}')">${won ? 'Return to Homestead' : 'Back to Portal'}</button>
+          <button class="btn primary" onclick="leaveBattleResult('${won ? 'farm' : 'portal'}')">${won ? 'Return to Homestead' : 'Back to Portal'}</button>
         </div>
       </div>`, era.bg);
     B = null;
@@ -462,6 +489,8 @@ function intentText(m) {
     case 'weaken': return `🌀 ${m.name} — attack + weaken`;
     case 'stance': return `🥋 ${m.name} — attack cards get COUNTERED!`;
     case 'heal':   return `💚 ${m.name} — repairing itself`;
+    case 'steal':  return `🫳 ${m.name} — will steal a card from your deck!`;
+    case 'plunder': return `🏴‍☠️ ${m.name} — steals your Block, then attacks!`;
   }
   return m.name;
 }
@@ -483,11 +512,14 @@ function renderBattle() {
   if (B.vuln) bossChips.push(`<span class="chip vuln">🎯 Exposed ${B.vuln}</span>`);
   if (B.frozen) bossChips.push('<span class="chip weak">❄️ Frozen</span>');
   if (B.phase === 2) bossChips.push('<span class="chip burn">Phase 2</span>');
+  if (B.stolen.length) bossChips.push(`<span class="chip vuln">🫳 ${B.stolen.length} card${B.stolen.length > 1 ? 's' : ''} stolen</span>`);
+  const bossExpr = B.frozen ? 'surprised' : B.hp < B.maxHp * 0.2 ? 'sad' : B.phase === 2 ? 'determined' : 'smirk';
   const dis = B.busy || B.over;
   const intent = B.frozen ? '❄️ Frozen — it will lose this action' : intentText(B.intent);
-  const danger = !B.frozen && (B.intent.heavy || B.intent.kind === 'stance' || B.intent.kind === 'charge');
+  const danger = !B.frozen && (B.intent.heavy || ['stance', 'charge', 'steal', 'plunder'].includes(B.intent.kind));
   const sup = B.support ? COMPANIONS[B.support] : null;
-  const canAbility = sup && hearts(B.support) >= 3;
+  const shipGone = B.support === 'cedric' && S.shipStolen;
+  const canAbility = sup && hearts(B.support) >= 3 && !shipGone;
   const abilityName = B.support === 'anna' ? '💗 Remedy' : '💥 Broadside';
   const supExpr = B.support === 'anna' ? (danger ? 'surprised' : B.hero.hp < B.hero.maxHp * 0.35 ? 'sad' : 'determined') : (danger ? 'determined' : 'smirk');
   const fan = B.hand.length;
@@ -500,7 +532,8 @@ function renderBattle() {
       </div>
       <div class="battle-field">
         <div class="combatant boss ${shakeCls('bossBox')}" id="bossBox">
-          <div class="boss-emoji ${B.frozen ? 'frozen' : ''} ${B.phase === 2 ? 'enraged' : ''}">${boss.emoji}</div>
+          ${boss.portrait ? `<div class="boss-portrait ${B.frozen ? 'frozen' : ''} ${B.phase === 2 ? 'enraged' : ''}">${portraitSVG(boss.portrait, bossExpr, { crop: 'bust' })}</div>`
+            : `<div class="boss-emoji ${B.frozen ? 'frozen' : ''} ${B.phase === 2 ? 'enraged' : ''}">${boss.emoji}</div>`}
           <div class="combatant-info">
             <h3>${boss.name}</h3>
             ${bar(B.hp, B.maxHp, 'hp boss-hp')}
@@ -513,7 +546,7 @@ function renderBattle() {
         <div class="ally-box">
           <div class="ally-portrait">${portraitSVG(B.support, supExpr, { crop: 'bust', talking: false })}</div>
           <div class="ally-bubble"><b>${sup.name}</b><span>${B.bubble}</span></div>
-          ${canAbility ? `<button class="btn small ally-btn" ${dis || B.supportUsed ? 'disabled' : ''} onclick="useSupport()">${B.supportUsed ? 'Used' : abilityName}</button>` : `<small class="muted">Reach 3♥ to unlock ${abilityName}</small>`}
+          ${canAbility ? `<button class="btn small ally-btn" ${dis || B.supportUsed ? 'disabled' : ''} onclick="useSupport()">${B.supportUsed ? 'Used' : abilityName}</button>` : shipGone ? '<small class="muted">⚓ No ship, no cannons!</small>' : `<small class="muted">Reach 3♥ to unlock ${abilityName}</small>`}
         </div>` : ''}
       </div>
       <div class="battle-log" id="battleLog">${B.log.slice(-6).map(l => `<div class="log ${l.cls}">${l.msg}</div>`).join('')}</div>
@@ -589,7 +622,7 @@ function cutIn(who, text, icon) {
   const f = document.createElement('div');
   f.className = `cutin cutin-${who}`;
   f.innerHTML = `<div class="cutin-band"><div class="cutin-lines"></div>
-    <div class="cutin-face">${portraitSVG(who, who === 'hero' ? 'determined' : 'happy', { crop: 'head' })}</div>
+    <div class="cutin-face">${portraitSVG(who, who === 'hero' || VILLAINS[who] ? 'determined' : 'happy', { crop: 'head' })}</div>
     <div class="cutin-text"><span class="cutin-icon">${icon || ''}</span>${text}</div></div>`;
   document.body.appendChild(f);
   setTimeout(() => f.remove(), 1150);

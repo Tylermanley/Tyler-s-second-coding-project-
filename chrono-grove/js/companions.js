@@ -218,7 +218,7 @@ function advanceScene() {
 
 function renderLine() {
   const ln = DLG.lines[DLG.i];
-  const c = COMPANIONS[ln.who];
+  const c = charInfo(ln.who);
   const el = document.getElementById('dialogue');
   if (c) DLG.bg = c.bg;
   const entering = c && DLG.who !== ln.who;
@@ -492,9 +492,10 @@ function renderShip(view) {
   const st = stats();
   const owned = Object.keys(CARDS).filter(id => S.cards[id]);
   view.innerHTML = `
-    ${backBar('cedric', S.partner === 'cedric' ? 'Welcome aboard, co-captain. Take whatever you need.' : 'Welcome aboard the Gilded Gull! Finest cards in seven centuries.')}
+    ${backBar('cedric', S.shipStolen ? 'Welcome to… a borrowed rowboat. Jane took everything. I did save your deck crate, though!' : S.partner === 'cedric' ? 'Welcome aboard, co-captain. Take whatever you need.' : 'Welcome aboard the Gilded Gull! Finest cards in seven centuries.')}
     <section class="panel">
       <h3>🃏 Cedric's Card Shop <span class="muted">🪙 ${S.coins}</span></h3>
+      ${S.shipStolen ? `<div class="heist-banner">🏴‍☠️ Lady Jane has stolen the Gilded Gull! "My whole stock was in the hold… Help me get her back and the shop reopens."</div>` : `
       <div class="card-row">
         ${SHOP_CARDS.map(sc => {
           const locked = h < sc.hearts;
@@ -504,7 +505,7 @@ function renderShip(view) {
               : `<button class="btn small primary" ${S.coins < sc.price ? 'disabled' : ''} onclick="buyCard('${sc.id}',${sc.price})">🪙 ${sc.price}</button>`}
           </div>`;
         }).join('')}
-      </div>
+      </div>`}
     </section>
     <section class="panel deck-panel">
       <h3>📦 Your Deck <span class="muted">${deckSize()} cards (min ${DECK_MIN}, max ${DECK_MAX})</span></h3>
@@ -522,7 +523,7 @@ function renderShip(view) {
 }
 
 function buyCard(id, price) {
-  if (S.coins < price) return;
+  if (S.coins < price || S.shipStolen) return;
   S.coins -= price;
   grantCard(id);
   toast(`🃏 Cedric hands you <b>${CARDS[id].name}</b>. "Pleasure doing business!"`);

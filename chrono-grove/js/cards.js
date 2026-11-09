@@ -36,6 +36,8 @@ const CARDS = {
   oniwrath: { name: 'Oni\'s Wrath',     art: '👺', cost: 1, dmg: 1.9, exhaust: true, rarity: 'legendary' },
   overclock:{ name: 'Overclock',        art: '🔧', cost: 0, cp: 2, exhaust: true, rarity: 'legendary' },
   eternity: { name: 'Eternal Moment',   art: '⌛', cost: 0, freeze: true, exhaust: true, rarity: 'legendary' },
+  glacial:  { name: 'Glacial Lance',    art: '🧊', cost: 2, dmg: 1.5, weak: 2, vuln: 1, rarity: 'legendary' },
+  krakenc:  { name: 'Kraken\'s Embrace', art: '🐙', cost: 3, dmg: 2.4, block: 10, rarity: 'legendary' },
   // Cedric's wares
   grog:     { name: 'Captain\'s Grog',  art: '🍺', cost: 1, heal: 0.1, draw: 1 },
   chart:    { name: 'Navigator\'s Chart', art: '🗺️', cost: 0, draw: 2, exhaust: true },
@@ -57,7 +59,7 @@ const PUZZLE_CARDS = {
   'japan-1': 'tea', 'japan-2': 'lantern', 'japan-3': 'iai',
   'renaissance-1': 'gambit', 'renaissance-2': 'glider', 'renaissance-3': 'master',
 };
-const BOSS_CARDS = { egypt: 'ra', greece: 'fury', medieval: 'bulwark', japan: 'oniwrath', renaissance: 'overclock', end: 'eternity' };
+const BOSS_CARDS = { egypt: 'ra', greece: 'fury', medieval: 'bulwark', japan: 'oniwrath', renaissance: 'overclock', end: 'eternity', winters: 'glacial', jane: 'krakenc' };
 
 // Cedric's shop: price and the hearts needed before he'll sell it
 const SHOP_CARDS = [
@@ -102,6 +104,16 @@ const BOSS_HINTS = {
     'The Devourer uses every trick we\'ve seen: shields, counters, charges, burns, healing. Build a balanced deck.',
     'Its Paradox Guard counters attacks just like the Oni. Patience wins this fight.',
     'Eternal Moment and Freeze Time can erase an Epoch Collapse entirely. Please… come back to me safely.',
+  ],
+  winters: [
+    'Peter\'s Pickpocket steals a card from your deck for the rest of the fight. Play your strongest cards early, before he can swipe them!',
+    'His Smug Riposte counters attack cards, just like the Oni. Block, heal or play skills while he poses.',
+    'When he starts to Gloat, Glacial Lance comes next. Freeze him mid-brag. He would absolutely hate that.',
+  ],
+  jane: [
+    'Lady Jane\'s Plunder steals ALL of your Block and turns it into her own shield! When she\'s about to plunder, attack instead of blocking.',
+    'She calls the Kraken before her strongest attack. That\'s the turn to stack Block or play Freeze Time.',
+    'She swigs grog to heal and raises the Black Flag at half health. Burn and Expose will help you out-pace her. Cedric says she hates being out-smarted.',
   ],
 };
 

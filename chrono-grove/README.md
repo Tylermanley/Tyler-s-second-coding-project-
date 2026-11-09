@@ -10,7 +10,7 @@ There's no build step and nothing to install. Open `index.html` in any modern br
 
 - **Homestead farming:** Till soil, clear rocks and stumps, plant and water six crops, and press End Day to grow them. Weather changes daily, and rain waters every crop for free. Sell your harvest at the Market.
 - **Artifact display:** Place the artifacts you recover on your land to switch on their powers: attack, defence, HP, max energy, coins per day, and sprinklers that water the 8 tiles around them each morning.
-- **Six eras:** Ancient Egypt, Classical Greece, Medieval Europe, Feudal Japan, Renaissance Italy, and the secret End of Time.
+- **Six eras plus a finale:** Ancient Egypt, Classical Greece, Medieval Europe, Feudal Japan, Renaissance Italy and the secret End of Time, followed by the two-part villain finale.
 - **Four puzzle types:**
   - 🔍 Hidden objects, timed, with a hint button
   - 🃏 Memory pairs
@@ -27,8 +27,11 @@ There's no build step and nothing to install. Open `index.html` in any modern br
   - **Anna, the librarian.** Your satchel holds 10 items, and anything that won't fit goes into Anna's archive. She keeps notes on every guardian. As your battle support she reads the boss's next move and gives live advice every turn. With more hearts she unlocks a healing Remedy, extra satchel pockets and a protective ward.
   - **Cedric, the merchant and ship captain.** He forges a battle card for every puzzle you solve and every boss you defeat, and he sells rare cards on his ship. You build your deck there. As your battle support he deals you an extra card each turn, and later his ship fires a cannon Broadside.
   - **Romance.** Talk to them daily, give gifts (each has favourite crops) and fight side by side to earn hearts. Heart-event scenes unlock at 2, 4, 6 and 8♥. At 8♥, give a Chrono Locket to become partners. Your partner moves into the homestead, brings a daily gift and gives you a special card.
+- **Final villains:** Peter Winters is a smug, platinum-blond aristocrat with ice magic who collects other people's history. Lady Jane is a silver-haired former Pirate Queen with an eye patch, and she was Cedric's old captain. Both appear in earlier story scenes. After you defeat the Time Devourer, they pull off a heist: Peter steals the Hourglass and several displayed artifacts, and Jane steals Cedric's ship, the Gilded Gull. That closes his shop and silences his cannons. Get everything back in two final boss battles:
+  - **Peter:** his Pickpocket steals cards from your deck mid-fight.
+  - **Jane:** her Plunder turns your Block into her shield.
 - **Anime-style characters:** Animated SVG portraits blink, breathe, sway and lip-flap while talking. They have expressions with blushes, emotes and sparkles. Conversations play as visual-novel scenes with a typewriter effect and speed lines, and big moves in battle trigger special-move cut-ins.
-- **Progression:** Earn XP and levels, upgrade your weapon and coat at the Forge, buy potions, unlock new seeds, fill all 21 Museum slots and collect all 31 battle cards.
+- **Progression:** Earn XP and levels, upgrade your weapon and coat at the Forge, buy potions, unlock new seeds, fill all 23 Museum slots and collect all 33 battle cards.
 
 ## Bosses
 
@@ -40,6 +43,8 @@ There's no build step and nothing to install. Open `index.html` in any modern br
 | Feudal Japan | The Oni Warlord | Counter Stance punishes attacks |
 | Renaissance Italy | The Clockwork Colossus | Barriers, Overclock, Solar Lance, self-repair |
 | End of Time | The Time Devourer | Uses every mechanic above |
+| Winters Manor | Peter Winters | Pickpocket steals cards from your deck; Smug Riposte counters; Glacial Lance |
+| The Stolen Gull | Lady Jane, the Pirate Queen | Plunder steals your Block as her shield; Kraken's Embrace; Black Flag rage |
 
 ## Code layout
 
@@ -55,6 +60,7 @@ chrono-grove/
     ├── puzzles.js    # the four puzzle types
     ├── battle.js     # turn-based card combat engine and cut-ins
     ├── companions.js # Anna and Cedric: dialogue scenes, romance, library, ship
+    ├── villains.js   # Peter Winters and Lady Jane: story scenes, heist, finale
     ├── farm.js       # homestead grid, tools, day cycle
     └── main.js     # header, tabs, portal, museum, market, help
 ```

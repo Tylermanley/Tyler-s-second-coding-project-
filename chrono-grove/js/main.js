@@ -73,18 +73,20 @@ function renderPortal() {
   view.innerHTML = `
     <h2 class="view-title">🌀 The Time Portal</h2>
     <p class="muted center">Solve puzzles to recover artifacts. Recover all three in an era to awaken its boss. Defeat the boss to open the next era.</p>
+    ${heistBanner()}
     <div class="era-list">
       ${ERAS.map(era => {
         const open = eraUnlocked(era);
         const done = S.bosses[era.id];
         if (!open) {
-          return `<div class="era-card locked"><div class="era-icon">🔒</div><div><h3>${era.final ? '???' : era.name}</h3><p class="muted">${era.final ? 'Defeat every boss to reveal this rift.' : `Defeat ${ERAS[eraIndex(era.id) - 1].boss.name} to unlock.`}</p></div></div>`;
+          const lockMsg = era.requires ? `Something stirs beyond ${ERA_BY_ID[era.requires].boss.name}…` : era.final ? 'Defeat every boss to reveal this rift.' : `Defeat ${ERAS[eraIndex(era.id) - 1].boss.name} to unlock.`;
+          return `<div class="era-card locked"><div class="era-icon">🔒</div><div><h3>${era.final ? '???' : era.name}</h3><p class="muted">${lockMsg}</p></div></div>`;
         }
         const bossOpen = bossUnlocked(era);
         return `
           <div class="era-card" style="--era:${era.color};background:${era.bg}">
             <div class="era-head">
-              <div class="era-icon">${era.icon}</div>
+              <div class="era-icon">${era.boss.portrait ? `<span class="era-villain">${portraitSVG(era.boss.portrait, done ? 'sad' : 'smirk', { crop: 'head' })}</span>` : era.icon}</div>
               <div><h3>${era.name} ${done ? '✅' : ''}</h3><p class="era-year">${era.year} — ${era.blurb}</p></div>
             </div>
             <div class="era-puzzles">
@@ -261,6 +263,8 @@ function renderHelp() {
       </ul>
       <h3>💞 Companions</h3>
       <p><b>Anna</b>, the librarian, keeps everything that won't fit in your satchel in her archive and studies every guardian. As support she gives live hints each turn, and with more hearts she heals and shields you. <b>Cedric</b>, the merchant captain, forges and sells battle cards. As support he deals you an extra card each turn and later fires his ship's cannons.</p>
+      <h3>🦹 Rivals</h3>
+      <p>Watch out for <b>Peter Winters</b>, an arrogant young collector with ice magic, and <b>Lady Jane</b>, a legendary pirate who wants her old ship back. Peter's <b>Pickpocket</b> steals cards from your deck during battle, and Jane's <b>Plunder</b> steals your Block. Ask Anna for her notes before you face them.</p>
       <p>Talk to them daily, give gifts (each has favourite crops) and bring them into battle to raise their hearts. Heart events unlock at 2, 4, 6 and 8♥. At 8♥, give a Chrono Locket from the Market to become partners.</p>
       <h3>💡 Tips</h3>
       <p>Level up by replaying puzzles, upgrade at the Forge, buy potions before boss fights, and place sprinkler artifacts in the middle of your fields.</p>
@@ -304,4 +308,5 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.tab').forEach(t => t.onclick = () => showTab(t.dataset.tab));
   showTab('farm');
   if (!S.introSeen) showIntro();
+  else if (S.bosses.end && !S.heistStarted) { triggerHeist(); playStory('heist'); }
 });

@@ -172,6 +172,7 @@ function renderFarm() {
   view.innerHTML = `
     <div class="farm-layout">
       <div class="farm-main">
+        ${heistBanner()}
         <div class="toolbar">
           ${Object.entries(TOOLS).map(([id, tl]) => `<button class="tool ${farmUI.tool === id ? 'active' : ''}" data-tool="${id}" title="${tl.tip}"><span>${tl.icon}</span>${tl.name}</button>`).join('')}
         </div>
