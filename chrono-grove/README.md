@@ -16,14 +16,19 @@ There's no build step and nothing to install. Open `index.html` in any modern br
   - 🃏 Memory pairs
   - 🧩 Sliding tiles that rebuild a picture of the artifact
   - 🔮 Rune sequences, in the style of Simon
-- **Turn-based boss battles:** Each boss shows its next move ahead of time, so you can plan around it. You can Attack, Defend, use Chrono Skills (Temporal Strike, Rewind, Freeze Time) that cost Chrono Points, or use items. Bosses also use:
+- **Turn-based card battles:** Battle cards are your main weapon. Each turn you draw 5 cards and spend 3 Chrono Points to play attacks, blocks and skills, such as burn, weaken, expose, freeze time and shield-breakers. Each boss shows its next move ahead of time, so you can plan around it. Bosses also use:
   - charge-up heavy attacks
   - counter stances
   - shields
   - burn and weaken effects
   - self-healing
   - a tougher second phase at half health
-- **Progression:** Earn XP and levels, upgrade your weapon and coat at the Forge, buy potions, unlock new seeds, and fill all 21 slots in the Museum.
+- **Companions and romance:**
+  - **Anna, the librarian.** Your satchel holds 10 items, and anything that won't fit goes into Anna's archive. She keeps notes on every guardian. As your battle support she reads the boss's next move and gives live advice every turn. With more hearts she unlocks a healing Remedy, extra satchel pockets and a protective ward.
+  - **Cedric, the merchant and ship captain.** He forges a battle card for every puzzle you solve and every boss you defeat, and he sells rare cards on his ship. You build your deck there. As your battle support he deals you an extra card each turn, and later his ship fires a cannon Broadside.
+  - **Romance.** Talk to them daily, give gifts (each has favourite crops) and fight side by side to earn hearts. Heart-event scenes unlock at 2, 4, 6 and 8♥. At 8♥, give a Chrono Locket to become partners. Your partner moves into the homestead, brings a daily gift and gives you a special card.
+- **Anime-style characters:** Animated SVG portraits blink, breathe, sway and lip-flap while talking. They have expressions with blushes, emotes and sparkles. Conversations play as visual-novel scenes with a typewriter effect and speed lines, and big moves in battle trigger special-move cut-ins.
+- **Progression:** Earn XP and levels, upgrade your weapon and coat at the Forge, buy potions, unlock new seeds, and fill all 21 slots in the Museum, and collect all 31 battle cards.
 
 ## Bosses
 
@@ -43,10 +48,13 @@ chrono-grove/
 ├── index.html
 ├── css/style.css
 └── js/
-    ├── data.js     # crops, artifacts, eras, puzzles, bosses
-    ├── state.js    # save/load, derived stats, progression
-    ├── farm.js     # homestead grid, tools, day cycle
-    ├── puzzles.js  # the four puzzle types
-    ├── battle.js   # turn-based combat engine
+    ├── data.js       # crops, artifacts, eras, puzzles, bosses
+    ├── cards.js      # battle cards, Cedric's shop, Anna's guardian notes
+    ├── state.js      # save/load, satchel/archive, hearts, progression
+    ├── portraits.js  # animated anime-style SVG character portraits
+    ├── puzzles.js    # the four puzzle types
+    ├── battle.js     # turn-based card combat engine and cut-ins
+    ├── companions.js # Anna and Cedric: dialogue scenes, romance, library, ship
+    ├── farm.js       # homestead grid, tools, day cycle
     └── main.js     # header, tabs, portal, museum, market, help
 ```

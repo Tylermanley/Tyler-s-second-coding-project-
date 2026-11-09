@@ -42,6 +42,8 @@ const ARTIFACTS = {
   hourglass: { name: 'Hourglass of Eternity', emoji: '⏳', era: 'end',        bonus: { atk: 5, def: 5, hp: 50, energy: 10, gold: 50, sprinkler: 1 }, desc: 'The Devourer\'s core. With it, every moment of history is safe.', relic: true },
 };
 
+const LOCKET = { name: 'Chrono Locket', emoji: '💍', cost: 400, desc: 'A locket whose clock hands point to the same moment. Give it to a companion at 8♥ to become partners.' };
+
 const SHOP_ITEMS = {
   potion:   { name: 'Herbal Potion', emoji: '🧪', cost: 30, desc: 'Restores 40 HP in battle.' },
   hipotion: { name: 'Royal Elixir',  emoji: '🍶', cost: 85, desc: 'Restores 120 HP in battle.' },
@@ -64,7 +66,7 @@ const ERAS = [
       { id: 'egypt-3', name: 'Shattered Cartouche',    type: 'slider',  artifact: 'canopic' },
     ],
     boss: {
-      name: 'The Sandstone Sphinx', emoji: '🦁', hp: 110, atk: 8, def: 1, xp: 80, coins: 120, relic: 'sundisk',
+      name: 'The Sandstone Sphinx', emoji: '🦁', hp: 230, atk: 9, def: 1, xp: 80, coins: 120, relic: 'sundisk',
       intro: 'The Sphinx rises from the dunes. "Answer my riddle... or be buried with the kings."',
       phaseText: 'The Sphinx\'s eyes blaze! A sandstorm begins to howl!',
       moves: {
@@ -88,7 +90,7 @@ const ERAS = [
       { id: 'greece-3', name: 'Theatre of Masks',      type: 'memory',   artifact: 'amphora' },
     ],
     boss: {
-      name: 'The Labyrinth Minotaur', emoji: '🐂', hp: 170, atk: 11, def: 3, xp: 130, coins: 200, relic: 'horn',
+      name: 'The Labyrinth Minotaur', emoji: '🐂', hp: 390, atk: 13, def: 3, xp: 130, coins: 200, relic: 'horn',
       intro: 'Hooves thunder through the dark corridors. The Minotaur has found you.',
       phaseText: 'The Minotaur bellows in fury — it is ENRAGED!',
       moves: {
@@ -113,7 +115,7 @@ const ERAS = [
       { id: 'medieval-3', name: 'Bells of the Abbey',   type: 'sequence', artifact: 'chalice' },
     ],
     boss: {
-      name: 'The Iron Dragon', emoji: '🐉', hp: 240, atk: 13, def: 4, xp: 190, coins: 300, relic: 'scale',
+      name: 'The Iron Dragon', emoji: '🐉', hp: 560, atk: 16, def: 4, xp: 190, coins: 300, relic: 'scale',
       intro: 'Smoke pours from the mountain keep. The Iron Dragon unfurls its wings.',
       phaseText: 'The Dragon\'s scales glow white-hot!',
       moves: {
@@ -139,7 +141,7 @@ const ERAS = [
       { id: 'japan-3', name: 'Folding Screen',         type: 'slider', artifact: 'katana' },
     ],
     boss: {
-      name: 'The Oni Warlord', emoji: '👹', hp: 300, atk: 15, def: 5, xp: 260, coins: 420, relic: 'onimask',
+      name: 'The Oni Warlord', emoji: '👹', hp: 740, atk: 19, def: 5, xp: 260, coins: 420, relic: 'onimask',
       intro: 'A horned giant in lacquered armour draws an enormous blade. "Strike me, if you dare."',
       phaseText: 'The Oni\'s aura turns crimson. Its stance grows deadlier!',
       moves: {
@@ -165,7 +167,7 @@ const ERAS = [
       { id: 'renaissance-3', name: 'Gallery of Pairs',    type: 'memory',   artifact: 'portrait' },
     ],
     boss: {
-      name: 'The Clockwork Colossus', emoji: '🤖', hp: 380, atk: 17, def: 7, xp: 340, coins: 560, relic: 'heart',
+      name: 'The Clockwork Colossus', emoji: '🤖', hp: 960, atk: 22, def: 7, xp: 340, coins: 560, relic: 'heart',
       intro: 'Gears grind. Steam hisses. A towering automaton turns its lens toward you.',
       phaseText: 'WARNING: OVERCLOCK PROTOCOL ENGAGED. The Colossus glows red!',
       moves: {
@@ -188,7 +190,7 @@ const ERAS = [
     pool: ['⏳','⌛','🌀','🕰️','⭐','🌙','☄️','🔮','💫','🪐','⚙️','🌌'],
     puzzles: [],
     boss: {
-      name: 'The Time Devourer', emoji: '🌀', hp: 600, atk: 24, def: 9, xp: 600, coins: 1500, relic: 'hourglass',
+      name: 'The Time Devourer', emoji: '🌀', hp: 1500, atk: 30, def: 9, xp: 600, coins: 1500, relic: 'hourglass',
       intro: 'A vortex with a thousand eyes opens. "Every moment you saved... I will consume."',
       phaseText: 'The Devourer splits time itself! Its attacks echo across the ages!',
       moves: {

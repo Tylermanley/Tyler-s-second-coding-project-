@@ -46,9 +46,9 @@ function handleTile(i) {
   // Harvesting always works, whatever the tool
   if (cropReady(t)) {
     const c = CROPS[t.crop.id];
-    S.produce[t.crop.id] = (S.produce[t.crop.id] || 0) + 1;
+    const where = stash('produce', t.crop.id, 1);
     t.crop = null;
-    toast(`Harvested ${c.emoji} ${c.name}! Sell it at the Market.`);
+    toast(where.toLib ? `Harvested ${c.emoji} ${c.name}! Your satchel is full, so Anna stored it in the archive. 📚` : `Harvested ${c.emoji} ${c.name}! Sell it at the Market or give it as a gift.`);
     return commitFarm();
   }
 
@@ -125,10 +125,14 @@ function endDay() {
   const st = stats();
   S.energy = st.maxEnergy;
   if (st.gold) S.coins += st.gold;
+  let partnerMsg = '';
+  if (S.partner === 'anna') { stash('items', 'potion', 1); partnerMsg = ' 💗 Anna left you a potion.'; }
+  if (S.partner === 'cedric') { S.coins += 30; partnerMsg = ' 💗 Cedric added 🪙 30 to the coin jar.'; }
+  resetDailyIfNeeded();
   saveGame();
   renderAll();
   const weatherMsg = { rain: '🌧️ It\'s raining — every crop is watered!', cloudy: '☁️ A cloudy, calm morning.', sunny: '☀️ A bright sunny morning.' }[S.weather];
-  toast(`Day ${S.day}. ${weatherMsg} ${grown ? `${grown} crop${grown > 1 ? 's' : ''} grew${ready ? `, ${ready} ready to harvest` : ''}.` : ''} ${st.gold ? `Artifacts earned 🪙 ${st.gold}.` : ''}`, 4500);
+  toast(`Day ${S.day}. ${weatherMsg} ${grown ? `${grown} crop${grown > 1 ? 's' : ''} grew${ready ? `, ${ready} ready to harvest` : ''}.` : ''} ${st.gold ? `Artifacts earned 🪙 ${st.gold}.` : ''}${partnerMsg}`, 4500);
 }
 
 function tileView(t, i, sprinkled) {
@@ -178,6 +182,10 @@ function renderFarm() {
         <button class="btn primary end-day" id="endDayBtn">🌙 End Day ${S.day}</button>
       </div>
       <aside class="farm-side">
+        ${S.partner ? `<section class="panel partner-panel" style="background:${COMPANIONS[S.partner].bg}">
+          <div class="pp-face">${portraitSVG(S.partner, 'blush', { crop: 'bust' })}</div>
+          <div class="bubble"><b>${COMPANIONS[S.partner].name}:</b> ${COMPANIONS[S.partner].morning}</div>
+        </section>` : ''}
         <section class="panel">
           <h3>🌱 Seed Pouch</h3>
           <div class="pick-list">

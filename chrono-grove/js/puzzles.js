@@ -45,7 +45,7 @@ function openPuzzle(eraId, puzzleId) {
       <div class="reward-line">
         ${cleared
           ? `<span>Replay reward: 🪙 ${replayCoins(era)} · ✨ ${replayXp(era)} XP</span>`
-          : `<span>Reward: <b>${art.emoji} ${art.name}</b> · 🪙 ${firstCoins(era)} · ✨ ${firstXp(era)} XP</span>`}
+          : `<span>Reward: <b>${art.emoji} ${art.name}</b> + Cedric's card <b>${CARDS[PUZZLE_CARDS[puzzle.id]].art} ${CARDS[PUZZLE_CARDS[puzzle.id]].name}</b> · 🪙 ${firstCoins(era)} · ✨ ${firstXp(era)} XP</span>`}
       </div>
       <p class="muted">Costs ⚡ ${PUZZLE_ENERGY} energy (you have ${S.energy}).</p>
       <div class="btn-row">
@@ -86,6 +86,11 @@ function finishPuzzle(success, detail) {
       grantArtifact(puzzle.artifact);
       const a = ARTIFACTS[puzzle.artifact];
       artLine = `<div class="artifact-reveal"><div class="big-emoji">${a.emoji}</div><h3>${a.name}</h3><p>${a.desc}</p><p class="bonus">${bonusText(a.bonus)}</p><p class="muted">Display it on your homestead to activate its power!</p></div>`;
+      const cardId = PUZZLE_CARDS[puzzle.id];
+      if (cardId) {
+        grantCard(cardId);
+        artLine += `<div class="card-gift">${portraitSVG('cedric', 'happy', { crop: 'head', cls: 'mini' })}<div><p><b>Cedric:</b> "What a find! I've forged you a new battle card from it."</p>${cardHTML(cardId)}</div></div>`;
+      }
     }
     const bossNow = first && bossUnlocked(era) && !era.final;
     body = `

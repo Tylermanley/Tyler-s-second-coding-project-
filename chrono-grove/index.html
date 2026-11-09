@@ -15,6 +15,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="farm">🌱 Homestead</button>
     <button class="tab" data-tab="portal">🌀 Time Portal</button>
+    <button class="tab" data-tab="town">💞 Companions</button>
     <button class="tab" data-tab="museum">🏛️ Museum</button>
     <button class="tab" data-tab="market">🛒 Market</button>
     <button class="tab" data-tab="help">❔ Help</button>
@@ -23,18 +24,23 @@
   <main>
     <section class="view active" id="view-farm"></section>
     <section class="view" id="view-portal"></section>
+    <section class="view" id="view-town"></section>
     <section class="view" id="view-museum"></section>
     <section class="view" id="view-market"></section>
     <section class="view" id="view-help"></section>
   </main>
 
   <div class="stage" id="stage"><div class="stage-inner" id="stageInner"></div></div>
+  <div class="dialogue" id="dialogue"></div>
   <div class="toasts" id="toasts"></div>
 
   <script src="js/data.js"></script>
+  <script src="js/cards.js"></script>
   <script src="js/state.js"></script>
+  <script src="js/portraits.js"></script>
   <script src="js/puzzles.js"></script>
   <script src="js/battle.js"></script>
+  <script src="js/companions.js"></script>
   <script src="js/farm.js"></script>
   <script src="js/main.js"></script>
 </body>

@@ -45,10 +45,12 @@ function renderHeader() {
     <div class="hud-item">🪙 <b>${S.coins}</b></div>
     <div class="hud-item energy" title="Energy">⚡ <div class="mini-bar"><div style="width:${(S.energy / st.maxEnergy) * 100}%"></div></div><b>${S.energy}/${st.maxEnergy}</b></div>
     <div class="hud-item" title="XP ${S.hero.xp}/${xpToNext()}">⭐ Lv <b>${S.hero.level}</b> <div class="mini-bar xp"><div style="width:${(S.hero.xp / xpToNext()) * 100}%"></div></div></div>
+    <div class="hud-item" title="Satchel">🎒 ${satchelCount()}/${satchelCap()}</div>
     <div class="hud-item stats">❤️ ${st.maxHp} ⚔️ ${st.atk} 🛡️ ${st.def}</div>`;
 }
 
 function showTab(tab) {
+  if (tab === 'town' && currentTab !== 'town') compView = 'main';
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
@@ -62,6 +64,7 @@ function renderAll() {
   if (currentTab === 'museum') renderMuseum();
   if (currentTab === 'market') renderMarket();
   if (currentTab === 'help') renderHelp();
+  if (currentTab === 'town') renderCompanions();
 }
 
 // ---------- Time Portal ----------
@@ -140,15 +143,17 @@ function forgeCost(kind) {
 
 function renderMarket() {
   const view = document.getElementById('view-market');
-  const produceIds = Object.keys(S.produce).filter(id => S.produce[id] > 0);
-  const produceValue = produceIds.reduce((s, id) => s + S.produce[id] * CROPS[id].sell, 0);
+  const produceIds = Object.keys(CROPS).filter(id => totalOf('produce', id) > 0);
+  const produceValue = produceIds.reduce((s, id) => s + totalOf('produce', id) * CROPS[id].sell, 0);
+  const anyMet = S.rel.anna.met || S.rel.cedric.met;
   view.innerHTML = `
     <h2 class="view-title">🛒 Village Market</h2>
     <div class="market-grid">
       <section class="panel">
         <h3>📦 Sell Produce</h3>
         ${produceIds.length ? `
-          <ul class="sell-list">${produceIds.map(id => `<li>${CROPS[id].emoji} ${CROPS[id].name} ×${S.produce[id]} <span>🪙 ${S.produce[id] * CROPS[id].sell}</span></li>`).join('')}</ul>
+          <ul class="sell-list">${produceIds.map(id => `<li>${CROPS[id].emoji} ${CROPS[id].name} ×${totalOf('produce', id)} <span>🪙 ${totalOf('produce', id) * CROPS[id].sell} <button class="btn small" onclick="sellOne('${id}')">Sell 1</button></span></li>`).join('')}</ul>
+          <p class="muted small">Includes crops stored in Anna's archive. Remember to keep some as gifts!</p>
           <button class="btn primary" onclick="sellAll()">Sell everything for 🪙 ${produceValue}</button>`
           : '<p class="muted">Nothing to sell. Harvest crops on your homestead!</p>'}
       </section>
@@ -165,9 +170,15 @@ function renderMarket() {
       <section class="panel">
         <h3>🎒 Adventuring Supplies</h3>
         ${Object.entries(SHOP_ITEMS).map(([id, it]) => `
-          <div class="shop-row"><span>${it.emoji} <b>${it.name}</b><small>${it.desc} · own ×${S.items[id] || 0}</small></span>
+          <div class="shop-row"><span>${it.emoji} <b>${it.name}</b><small>${it.desc} · satchel ×${S.items[id] || 0} · archive ×${S.library.items[id] || 0}</small></span>
           <button class="btn small" ${S.coins < it.cost ? 'disabled' : ''} onclick="buyItem('${id}')">🪙${it.cost}</button></div>`).join('')}
       </section>
+      ${anyMet ? `<section class="panel">
+        <h3>💝 Jeweller</h3>
+        <div class="shop-row"><span>${LOCKET.emoji} <b>${LOCKET.name}</b><small>${LOCKET.desc} · own ×${S.locket}</small></span>
+          <button class="btn small love" ${S.coins < LOCKET.cost || S.partner ? 'disabled' : ''} onclick="buyLocket()">🪙${LOCKET.cost}</button></div>
+        ${S.partner ? `<p class="muted small">💍 You and ${COMPANIONS[S.partner].name} are partners.</p>` : ''}
+      </section>` : ''}
       <section class="panel">
         <h3>⚒️ Blacksmith's Forge</h3>
         <div class="shop-row"><span>🗡️ <b>Hone Chrono Blade</b><small>Permanent +2 ATK · level ${S.hero.forgeAtk}</small></span>
@@ -178,9 +189,23 @@ function renderMarket() {
     </div>`;
 }
 
+function sellOne(id) {
+  if (!takeFrom('produce', id)) return;
+  S.coins += CROPS[id].sell;
+  saveGame(); renderAll();
+}
+
+function buyLocket() {
+  if (S.coins < LOCKET.cost || S.partner) return;
+  S.coins -= LOCKET.cost;
+  S.locket++;
+  toast('💍 You bought a Chrono Locket. Give it to someone special at 8♥.');
+  saveGame(); renderAll();
+}
+
 function sellAll() {
   let total = 0;
-  for (const id in S.produce) { total += S.produce[id] * CROPS[id].sell; S.produce[id] = 0; }
+  for (const id in CROPS) { total += totalOf('produce', id) * CROPS[id].sell; S.produce[id] = 0; S.library.produce[id] = 0; }
   S.coins += total;
   toast(`Sold produce for 🪙 ${total}!`);
   saveGame(); renderAll();
@@ -198,8 +223,8 @@ function buyItem(id) {
   const it = SHOP_ITEMS[id];
   if (S.coins < it.cost) return;
   S.coins -= it.cost;
-  S.items[id] = (S.items[id] || 0) + 1;
-  toast(`Bought ${it.emoji} ${it.name}.`);
+  const where = stash('items', id, 1);
+  toast(where.toLib ? `Bought ${it.emoji} ${it.name}. Your satchel is full, so Anna stored it in the archive.` : `Bought ${it.emoji} ${it.name}.`);
   saveGame(); renderAll();
 }
 
@@ -223,16 +248,20 @@ function renderHelp() {
       <p>Artifacts are recovered from puzzles and bosses. <b>Display</b> them on your land to activate their powers: more attack, defence, HP, energy, daily coins, or sprinkler effects that water the 8 tiles around them every morning.</p>
       <h3>🌀 Time Portal &amp; Puzzles</h3>
       <p>Each era has three puzzles — 🔍 hidden objects, 🃏 memory pairs, 🧩 sliding tiles and 🔮 rune sequences. Each costs ⚡${PUZZLE_ENERGY}. The first clear grants an artifact; replays give coins and XP.</p>
-      <h3>⚔️ Turn-Based Boss Battles</h3>
-      <p>Every turn the boss shows its <b>Next move</b>. Plan around it:</p>
+      <h3>🃏 Card Battles</h3>
+      <p>Battle cards are your main weapon. Cedric gives you a starter deck and forges a new card for every puzzle you solve and every boss you defeat. You can buy more on his ship and choose your deck (${DECK_MIN}–${DECK_MAX} cards).</p>
       <ul>
-        <li><b>Attack</b> — basic damage. <b>Defend</b> — take 60% less damage and gain an extra Chrono Point (CP).</li>
-        <li>You gain 1 CP per turn (max ${MAX_CP}). Spend it on <b>⚡ Temporal Strike</b>, <b>⏪ Rewind</b> or <b>❄️ Freeze Time</b>.</li>
-        <li>⚠️ <b>Heavy</b> attacks follow a charge-up turn — Defend or Freeze!</li>
-        <li>🥋 <b>Counter Stance</b> punishes attacks — Defend, heal or Freeze instead.</li>
-        <li>🔰 <b>Shields</b> soak up damage — Temporal Strike breaks them twice as fast.</li>
-        <li>Bosses enter a deadlier <b>Phase 2</b> at half health.</li>
+        <li>Each turn you draw ${HAND_SIZE} cards and get ${BASE_CP} Chrono Points (CP). Play cards by spending their CP cost, then press <b>End Turn</b>.</li>
+        <li><b>Block</b> soaks up damage until your next turn. The boss's <b>Next move</b> tells you when you'll need it.</li>
+        <li>⚠️ <b>Heavy</b> attacks follow a charge-up turn, so stack Block or play Freeze Time!</li>
+        <li>🥋 <b>Counter Stance</b> punishes attack cards. Play Block or skill cards instead.</li>
+        <li>🔰 <b>Shields</b> soak up damage, but ⚡ shield-breaking cards deal double to them.</li>
+        <li>🔥 Burn, 🌀 Weaken and 🎯 Expose (+50% damage taken) work on bosses too.</li>
+        <li>Items from your satchel are free actions. Bosses enter a deadlier <b>Phase 2</b> at half health.</li>
       </ul>
+      <h3>💞 Companions</h3>
+      <p><b>Anna</b>, the librarian, keeps everything that won't fit in your satchel in her archive and studies every guardian. As support she gives live hints each turn, and with more hearts she heals and shields you. <b>Cedric</b>, the merchant captain, forges and sells battle cards. As support he deals you an extra card each turn and later fires his ship's cannons.</p>
+      <p>Talk to them daily, give gifts (each has favourite crops) and bring them into battle to raise their hearts. Heart events unlock at 2, 4, 6 and 8♥. At 8♥, give a Chrono Locket from the Market to become partners.</p>
       <h3>💡 Tips</h3>
       <p>Level up by replaying puzzles, upgrade at the Forge, buy potions before boss fights, and place sprinkler artifacts in the middle of your fields.</p>
       <div class="btn-row"><button class="btn danger small" onclick="confirmReset()">Reset save</button></div>
@@ -254,9 +283,18 @@ function showIntro() {
       <h2>Welcome to Chrono Grove</h2>
       <p>Your great-aunt, a famous time-travelling archaeologist, has left you her overgrown homestead — and her pocket watch, the <b>Chrono Compass</b>.</p>
       <p>Rifts to the past have torn open. Priceless artifacts are scattered across history, guarded by ancient bosses... and something is devouring time itself.</p>
-      <p>Farm your land, solve puzzles in five eras, defeat their guardians in turn-based battles, and display your recovered treasures in the grove.</p>
-      <div class="btn-row"><button class="btn primary" onclick="S.introSeen=true;saveGame();closeStage()">Begin your journey</button></div>
+      <p>Farm your land, solve puzzles in five eras, defeat their guardians in turn-based card battles, and display your recovered treasures in the grove. Along the way, two new friends will be waiting… and maybe something more.</p>
+      <div class="btn-row"><button class="btn primary" onclick="beginJourney()">Begin your journey</button></div>
     </div>`, 'linear-gradient(160deg,#2f5d3a,#1b3524)');
+}
+
+function beginJourney() {
+  S.introSeen = true;
+  saveGame();
+  closeStage();
+  meetCompanion('anna', () => meetCompanion('cedric', () => {
+    toast('💞 Visit the Companions tab to talk, give gifts and choose a support for boss battles.', 5000);
+  }));
 }
 
 // ---------- boot ----------

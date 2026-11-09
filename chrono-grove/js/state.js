@@ -34,6 +34,15 @@ function newState() {
     plot,
     introSeen: false,
     won: false,
+    // Companions & cards
+    library: { items: {}, produce: {} },
+    cards: Object.assign({}, STARTER_DECK),
+    deck: Object.assign({}, STARTER_DECK),
+    rel: { anna: { pts: 0, met: false, events: [] }, cedric: { pts: 0, met: false, events: [] } },
+    partner: null,
+    support: null,
+    locket: 0,
+    daily: { day: 1, talked: {}, gifted: {} },
   };
 }
 
@@ -46,7 +55,7 @@ function loadGame() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) {
       const data = JSON.parse(raw);
-      if (data && data.version === 1 && Array.isArray(data.plot)) return Object.assign(newState(), data);
+      if (data && data.version === 1 && Array.isArray(data.plot)) return syncProgress(Object.assign(newState(), data));
     }
   } catch (e) { /* ignore corrupt save */ }
   return newState();
@@ -129,4 +138,75 @@ function spendEnergy(n) {
   if (S.energy < n) return false;
   S.energy -= n;
   return true;
+}
+
+// Older saves: hand out cards for puzzles and bosses already cleared
+function syncProgress(st) {
+  for (const pid in st.puzzles) {
+    const cid = PUZZLE_CARDS[pid];
+    if (cid && !st.cards[cid]) { st.cards[cid] = 1; if (deckSize(st) < DECK_MAX) st.deck[cid] = (st.deck[cid] || 0) + 1; }
+  }
+  for (const eid in st.bosses) {
+    const cid = BOSS_CARDS[eid];
+    if (cid && !st.cards[cid]) { st.cards[cid] = 1; if (deckSize(st) < DECK_MAX) st.deck[cid] = (st.deck[cid] || 0) + 1; }
+  }
+  return st;
+}
+
+// ---------- cards ----------
+function deckSize(st = S) { return Object.values(st.deck).reduce((a, b) => a + b, 0); }
+
+function deckList() {
+  const out = [];
+  for (const id in S.deck) for (let i = 0; i < S.deck[id]; i++) out.push(id);
+  return out.length ? out : Object.keys(STARTER_DECK).flatMap(id => Array(STARTER_DECK[id]).fill(id));
+}
+
+function grantCard(id) {
+  S.cards[id] = (S.cards[id] || 0) + 1;
+  if (deckSize() < DECK_MAX) S.deck[id] = (S.deck[id] || 0) + 1;
+}
+
+// ---------- satchel & Anna's archive ----------
+function satchelCap() {
+  return 10 + (hearts('anna') >= 4 ? 5 : 0) + (S.partner === 'anna' ? 5 : 0);
+}
+
+function satchelCount() {
+  const sum = o => Object.values(o).reduce((a, b) => a + b, 0);
+  return sum(S.items) + sum(S.produce);
+}
+
+// kind: 'items' | 'produce'. Fills the satchel first; anything that won't fit goes to Anna's archive.
+function stash(kind, id, n = 1) {
+  const room = Math.max(0, satchelCap() - satchelCount());
+  const toBag = Math.min(room, n);
+  const toLib = n - toBag;
+  if (toBag) S[kind][id] = (S[kind][id] || 0) + toBag;
+  if (toLib) S.library[kind][id] = (S.library[kind][id] || 0) + toLib;
+  return { toBag, toLib };
+}
+
+function totalOf(kind, id) { return (S[kind][id] || 0) + (S.library[kind][id] || 0); }
+
+// Takes from the satchel first, then the archive
+function takeFrom(kind, id, n = 1) {
+  if (totalOf(kind, id) < n) return false;
+  const fromBag = Math.min(S[kind][id] || 0, n);
+  S[kind][id] = (S[kind][id] || 0) - fromBag;
+  if (n - fromBag) S.library[kind][id] -= n - fromBag;
+  return true;
+}
+
+// ---------- relationships ----------
+function hearts(who) { return Math.min(10, Math.floor((S.rel[who] ? S.rel[who].pts : 0) / 10)); }
+
+function addAffection(who, pts) {
+  const before = hearts(who);
+  S.rel[who].pts = Math.min(100, S.rel[who].pts + pts);
+  return hearts(who) - before;
+}
+
+function resetDailyIfNeeded() {
+  if (S.daily.day !== S.day) S.daily = { day: S.day, talked: {}, gifted: {} };
 }
