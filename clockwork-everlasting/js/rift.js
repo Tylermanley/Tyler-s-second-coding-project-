@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — Endless Rift (roguelike boss tower) & Daily Challenge
+//  Clockwork Everlasting — Endless Rift (roguelike boss tower) & Daily Challenge
 // ============================================================
 
 const RIFT_ENERGY = 5;

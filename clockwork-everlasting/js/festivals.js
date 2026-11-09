@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — seasonal festivals (one per season, on day 7)
+//  Clockwork Everlasting — seasonal festivals (one per season, on day 7)
 // ============================================================
 
 const FESTIVAL_DAY = 7;

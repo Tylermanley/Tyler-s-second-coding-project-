@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — battle cards (Cedric's deck) and Anna's boss lore
+//  Clockwork Everlasting — battle cards (Cedric's deck) and Anna's boss lore
 // ============================================================
 // Card fields: cost, dmg (×ATK), hits, pierce, shieldBreak, block (+DEF×blockDef), heal (fraction of max HP),
 //              cleanse, cp, draw, burn, weak, vuln (turns on boss), freeze, exhaust (once per battle), rarity

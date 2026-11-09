@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — UI shell: header, tabs, portal, museum, market
+//  Clockwork Everlasting — UI shell: header, tabs, portal, museum, market
 // ============================================================
 
 let currentTab = 'farm';
@@ -326,10 +326,10 @@ function showIntro() {
   openStage(`
     <div class="stage-card intro">
       <div class="intro-icon">⏳</div>
-      <h2>Welcome to Chrono Grove</h2>
+      <h2>Welcome to Clockwork Everlasting</h2>
       <p>Your great-aunt, a famous time-travelling archaeologist, has left you her overgrown homestead — and her pocket watch, the <b>Chrono Compass</b>.</p>
       <p>Rifts to the past have torn open. Priceless artifacts are scattered across history, guarded by ancient bosses... and something is devouring time itself.</p>
-      <p>Farm your land, solve puzzles in five eras, defeat their guardians in turn-based card battles, and display your recovered treasures in the grove. Along the way, two new friends will be waiting… and maybe something more.</p>
+      <p>Farm your land, solve puzzles across ten eras of history, defeat their guardians in turn-based card battles, and display your recovered treasures in the grove. Along the way, new friends, wise mentors and cunning rivals will be waiting… and maybe something more.</p>
       <div class="btn-row"><button class="btn primary" onclick="beginJourney()">Begin your journey</button></div>
     </div>`, 'linear-gradient(160deg,#2f5d3a,#1b3524)');
 }

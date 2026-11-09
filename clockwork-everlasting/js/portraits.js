@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — animated anime-style character portraits (SVG)
+//  Clockwork Everlasting — animated anime-style character portraits (SVG)
 //  Expressions: neutral, smile, happy, blush, surprised, sad, determined, smirk
 // ============================================================
 

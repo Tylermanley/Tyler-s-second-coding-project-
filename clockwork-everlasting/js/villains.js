@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — final villains: Peter Winters & Lady Jane
+//  Clockwork Everlasting — final villains: Peter Winters & Lady Jane
 // ============================================================
 
 const VILLAINS = {

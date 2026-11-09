@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — cooking: recipes, packed meals (battle buffs) and dish gifts
+//  Clockwork Everlasting — cooking: recipes, packed meals (battle buffs) and dish gifts
 // ============================================================
 
 // Ingredients: crop ids, 'egg' (from the coop) and 'fish' (any fish you've caught)

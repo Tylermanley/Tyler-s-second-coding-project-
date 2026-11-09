@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — game state, saving and derived stats
+//  Clockwork Everlasting — game state, saving and derived stats
 // ============================================================
 
 const SAVE_KEY = 'chronoGrove.save.v1';

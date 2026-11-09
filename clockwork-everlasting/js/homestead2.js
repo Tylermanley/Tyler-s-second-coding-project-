@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — homestead expansion: fishing, buildings, decor, requests
+//  Clockwork Everlasting — homestead expansion: fishing, buildings, decor, requests
 // ============================================================
 
 // ---------- Fishing ----------

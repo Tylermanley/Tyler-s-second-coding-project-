@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — the homestead (farming + artifact display)
+//  Clockwork Everlasting — the homestead (farming + artifact display)
 // ============================================================
 
 const TOOLS = {

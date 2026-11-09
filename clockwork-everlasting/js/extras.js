@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — birthdays, wedding, Jane's side quest, memories gallery,
+//  Clockwork Everlasting — birthdays, wedding, Jane's side quest, memories gallery,
 //  tutorial checklist, settings & save slots
 // ============================================================
 
@@ -60,7 +60,7 @@ function weddingLines() {
     peter: ['blush', 'I wrote an ode. Fourteen stanzas. I\'ll… just read the last one. It\'s about frost. And joy.'],
   };
   return [
-    N('💒 Bells ring across Chrono Grove. Petals and paper lanterns fill the homestead, and every friend you\'ve made has gathered beneath the artifacts.'),
+    N('💒 Bells ring across the grove. Petals and paper lanterns fill the homestead, and every friend you\'ve made has gathered beneath the artifacts.'),
     L(who, 'blush', `I can\'t believe this is real. Of every moment in history… this is my favourite.`),
     ...guests.map(w => L(w, toasts[w][0], toasts[w][1])),
     L(who, 'cry', 'I promise to stand by you in every era, every season, every battle. Forever.'),
@@ -219,7 +219,7 @@ function exportSave() {
   const blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `chrono-grove-slot${currentSlot()}-day${S.day}.json`;
+  a.download = `clockwork-everlasting-slot${currentSlot()}-day${S.day}.json`;
   document.body.appendChild(a);
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
@@ -239,7 +239,7 @@ function importSave(input) {
       applySettings();
       toast('📥 Save imported!');
       showTab('farm');
-    } catch (e) { toast('⚠️ That file isn\'t a Chrono Grove save.'); }
+    } catch (e) { toast('⚠️ That file isn\'t a Clockwork Everlasting save.'); }
   });
 }
 

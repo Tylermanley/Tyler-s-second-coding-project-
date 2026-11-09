@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — puzzles (hidden object, memory, slider, rune lock)
+//  Clockwork Everlasting — puzzles (hidden object, memory, slider, rune lock)
 // ============================================================
 
 const PUZZLE_ENERGY = 3;

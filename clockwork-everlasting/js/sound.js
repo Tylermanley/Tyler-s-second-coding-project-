@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — procedural sound effects & music (Web Audio, no files)
+//  Clockwork Everlasting — procedural sound effects & music (Web Audio, no files)
 // ============================================================
 
 let AC = null, master = null, musicGain = null, sfxGain = null;

@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — mentors: Lady Alice (salon) & Minister Quinn (treasury)
+//  Clockwork Everlasting — mentors: Lady Alice (salon) & Minister Quinn (treasury)
 // ============================================================
 
 const VENTURES = {

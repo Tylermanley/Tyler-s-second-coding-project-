@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — companions: Anna & Cedric (support, romance, VN scenes)
+//  Clockwork Everlasting — companions: Anna & Cedric (support, romance, VN scenes)
 // ============================================================
 
 const L = (who, expr, text) => ({ who, expr, text });

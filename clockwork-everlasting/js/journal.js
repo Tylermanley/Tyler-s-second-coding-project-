@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — Anna's Adventure Journal (achievements & titles)
+//  Clockwork Everlasting — Anna's Adventure Journal (achievements & titles)
 // ============================================================
 
 const ACHIEVEMENTS = [

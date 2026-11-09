@@ -1,5 +1,5 @@
 // ============================================================
-//  Chrono Grove — turn-based CARD battles against era guardians
+//  Clockwork Everlasting — turn-based CARD battles against era guardians
 // ============================================================
 
 const BOSS_ENERGY = 5;

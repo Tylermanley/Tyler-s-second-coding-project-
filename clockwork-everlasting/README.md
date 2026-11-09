@@ -1,4 +1,4 @@
-# ⏳ Chrono Grove
+# ⏳ Clockwork Everlasting
 
 A cozy time-travel farming and collecting game that runs in the browser. You inherit an overgrown homestead and a magic pocket watch. You farm your land, travel through rifts in time to solve puzzles and recover historical artifacts, and fight each era's guardian in turn-based boss battles.
 
@@ -6,7 +6,7 @@ A cozy time-travel farming and collecting game that runs in the browser. You inh
 
 There's no build step and nothing to install. Open `index.html` in any modern browser. Progress saves automatically in your browser's `localStorage`. There are 3 save slots, and you can export and import save files in ⚙️ Settings.
 
-**Play online / install it:** once GitHub Pages is enabled (Settings → Pages → Source: *GitHub Actions*), the included workflow publishes the game on every push to `main`. When served over HTTPS, Chrono Grove is an installable Progressive Web App that works offline, so you can add it to your phone's home screen.
+**Play online / install it:** once GitHub Pages is enabled (Settings → Pages → Source: *GitHub Actions*), the included workflow publishes the game on every push to `main`. When served over HTTPS, Clockwork Everlasting is an installable Progressive Web App that works offline, so you can add it to your phone's home screen.
 
 ## Features
 
@@ -87,7 +87,7 @@ There's no build step and nothing to install. Open `index.html` in any modern br
 ## Code layout
 
 ```
-chrono-grove/
+clockwork-everlasting/
 ├── index.html
 ├── manifest.webmanifest, sw.js, icons/   # installable offline web app
 ├── css/style.css
