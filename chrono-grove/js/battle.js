@@ -70,6 +70,7 @@ function startBattle(eraId) {
     log: [], busy: false, over: false, turn: 1, menu: null, heroExpr: 'determined',
   };
   B.intent = nextIntent();
+  setMusic('battle');
   addLog(`⚔️ ${B.boss.name} appears!`, 'sys');
   if (support) addLog(`🤝 ${COMPANIONS[support].name} fights by your side.`, 'sys');
   startPlayerTurn();
@@ -167,6 +168,7 @@ function hitBoss(dmg, shieldMult = 1) {
     B.shield = Math.round(B.shield);
   }
   B.hp = Math.max(0, B.hp - dmg);
+  sfx(dmg > 0 ? 'hit' : 'block');
   floatNum('bossBox', dmg > 0 ? `-${dmg}` : 'Blocked', dmg > 0 ? 'dmg' : 'block');
   shake('bossBox');
   return { dealt: dmg, absorbed: Math.round(absorbed) };
@@ -187,6 +189,7 @@ function hitHero(dmg) {
   const taken = dmg - blocked;
   h.hp = Math.max(0, h.hp - taken);
   floatNum('heroBox', taken ? `-${taken}` : 'Blocked', taken ? 'dmg' : 'block');
+  sfx(taken ? 'hit' : 'block');
   if (taken) { shake('heroBox'); B.heroExpr = 'surprised'; }
   return { taken, blocked };
 }
@@ -196,6 +199,7 @@ function healHero(n) {
   const amt = Math.min(n, h.maxHp - h.hp);
   h.hp += amt;
   floatNum('heroBox', `+${amt}`, 'heal');
+  sfx('heal');
   B.heroExpr = 'happy';
   return amt;
 }
@@ -210,6 +214,7 @@ function playCard(k) {
   const h = B.hero;
   if (h.cp < c.cost) return;
   h.cp -= c.cost;
+  sfx('card');
   B.hand.splice(i, 1);
   B.menu = null;
   if (c.cost >= 3 || c.rarity === 'legendary') cutIn('hero', c.name, c.art);
@@ -427,6 +432,7 @@ function endBattle(won) {
   if (!B || B.over) return;
   B.over = true;
   B.busy = true;
+  sfx(won ? 'win' : 'lose');
   const era = B.era, boss = B.boss, support = B.support;
   let body;
   let heartsGained = 0;
@@ -492,6 +498,7 @@ function retreatBattle() {
   if (!confirm('Retreat? The energy spent on this trip will be lost.')) return;
   B = null;
   closeStage();
+  setMusic(backgroundMusic());
   showTab('portal');
 }
 
@@ -635,6 +642,7 @@ function flashScreen() {
 
 function impactFlash() {
   const f = document.createElement('div');
+  sfx('heavy');
   f.className = 'impact-flash';
   f.innerHTML = '<span>BOOM!!</span>';
   document.body.appendChild(f);
@@ -644,6 +652,7 @@ function impactFlash() {
 // Anime-style special move cut-in
 function cutIn(who, text, icon) {
   const f = document.createElement('div');
+  sfx('cutin');
   f.className = `cutin cutin-${who}`;
   f.innerHTML = `<div class="cutin-band"><div class="cutin-lines"></div>
     <div class="cutin-face">${portraitSVG(who, who === 'hero' || VILLAINS[who] ? 'determined' : 'happy', { crop: 'head' })}</div>

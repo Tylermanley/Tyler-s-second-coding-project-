@@ -29,7 +29,27 @@ const CARDS = {
   gambit:   { name: 'Clockwork Gambit', art: '⚙️', cost: 1, dmg: 0.7, hits: 2, draw: 1 },
   glider:   { name: 'Flying Machine',   art: '🪁', cost: 2, dmg: 1.0, block: 8 },
   master:   { name: 'Masterstroke',     art: '🎨', cost: 3, dmg: 2.2, vuln: 2, weak: 2, rarity: 'rare' },
+  // Viking Scandinavia
+  qgambit:  { name: 'Queen\'s Gambit',  art: '♛', cost: 1, dmg: 0.8, draw: 1 },
+  feast:    { name: 'Mead Feast',       art: '🍖', cost: 1, heal: 0.1, block: 5 },
+  axe:      { name: 'Bearded Axe',      art: '🪓', cost: 2, dmg: 2.0 },
+  // Tang Dynasty China
+  silkveil: { name: 'Silk Veil',        art: '🧣', cost: 1, block: 7, weak: 1 },
+  checkmate:{ name: 'Checkmate',        art: '♚', cost: 3, dmg: 2.4, pierce: true, rarity: 'rare' },
+  crackers: { name: 'Firecrackers',     art: '🧨', cost: 1, dmg: 0.35, hits: 4, burn: 2 },
+  // Aztec Empire
+  cacaoc:   { name: 'Cacao Elixir',     art: '🍫', cost: 0, heal: 0.06, cp: 1, exhaust: true },
+  obsidian: { name: 'Obsidian Edge',    art: '🌑', cost: 2, dmg: 1.7, vuln: 1 },
+  sunstone: { name: 'Sun Stone Ward',   art: '🔆', cost: 2, block: 9, burn: 2 },
+  // Ancient Mesopotamia
+  ziggurat: { name: 'Ziggurat Wall',    art: '🧱', cost: 2, block: 11, blockDef: 1.5 },
+  gardens:  { name: 'Hanging Gardens',  art: '🌿', cost: 2, heal: 0.18, draw: 1 },
+  hammurabi:{ name: 'Code of Hammurabi', art: '⚖️', cost: 2, dmg: 1.3, weak: 2, vuln: 2, rarity: 'rare' },
   // Boss trophies
+  wolfpack: { name: 'Wolf Pack',        art: '🐺', cost: 2, dmg: 0.6, hits: 3, vuln: 1, rarity: 'legendary' },
+  clones:   { name: 'Hair Clones',      art: '🐒', cost: 2, dmg: 0.4, hits: 5, rarity: 'legendary' },
+  serpent:  { name: 'Serpent\'s Venom', art: '🐍', cost: 1, dmg: 0.8, burn: 4, rarity: 'legendary' },
+  gilgamesh:{ name: 'Gilgamesh\'s Might', art: '💪', cost: 3, dmg: 2.6, block: 8, rarity: 'legendary' },
   ra:       { name: 'Wrath of Ra',      art: '🌞', cost: 3, dmg: 3.0, burn: 3, rarity: 'legendary' },
   fury:     { name: 'Minotaur\'s Fury', art: '🐂', cost: 2, dmg: 1.1, hits: 2, vuln: 1, rarity: 'legendary' },
   bulwark:  { name: 'Dragonscale Bulwark', art: '🐲', cost: 2, block: 12, blockDef: 2, rarity: 'legendary' },
@@ -58,8 +78,12 @@ const PUZZLE_CARDS = {
   'medieval-1': 'knight', 'medieval-2': 'holy', 'medieval-3': 'flask',
   'japan-1': 'tea', 'japan-2': 'lantern', 'japan-3': 'iai',
   'renaissance-1': 'gambit', 'renaissance-2': 'glider', 'renaissance-3': 'master',
+  'viking-1': 'qgambit', 'viking-2': 'feast', 'viking-3': 'axe',
+  'tang-1': 'silkveil', 'tang-2': 'checkmate', 'tang-3': 'crackers',
+  'aztec-1': 'cacaoc', 'aztec-2': 'obsidian', 'aztec-3': 'sunstone',
+  'mesopotamia-1': 'ziggurat', 'mesopotamia-2': 'gardens', 'mesopotamia-3': 'hammurabi',
 };
-const BOSS_CARDS = { egypt: 'ra', greece: 'fury', medieval: 'bulwark', japan: 'oniwrath', renaissance: 'overclock', end: 'eternity', winters: 'glacial', jane: 'krakenc' };
+const BOSS_CARDS = { egypt: 'ra', greece: 'fury', medieval: 'bulwark', japan: 'oniwrath', renaissance: 'overclock', viking: 'wolfpack', tang: 'clones', aztec: 'serpent', mesopotamia: 'gilgamesh', end: 'eternity', winters: 'glacial', jane: 'krakenc' };
 
 // Cedric's shop: price and the hearts needed before he'll sell it
 const SHOP_CARDS = [
@@ -99,6 +123,26 @@ const BOSS_HINTS = {
     'The Colossus deploys barriers often. Shield-breaking cards are essential, so bring Temporal Strike and Cannon Volley.',
     'It can repair itself. Burst damage with Exposed and burn will out-pace its repairs.',
     'After "Focus Lens" comes Solar Lance, its strongest attack. Freeze it or stack every Block card you have.',
+  ],
+  viking: [
+    'Fenrir crouches before its Ragnarök Lunge. That\'s your cue to stack Block or play Freeze Time.',
+    'Pack Fury is four quick bites. Block is applied to each one, so even small Block cards help a lot.',
+    'Its Thick Winter Pelt is a shield. Shield-breakers like Temporal Strike and Cannon Volley cut right through.',
+  ],
+  tang: [
+    'The Monkey King\'s Cloud Somersault is a counter stance. Don\'t attack while he\'s spinning on his cloud!',
+    'He steals peaches to heal himself. Burn and Expose help you out-pace him.',
+    'When his staff starts to grow, the Ruyi Staff Smash comes next. Brace yourself!',
+  ],
+  aztec: [
+    'Quetzalcoatl\'s Jade Venom burns for three turns. Bring Holy Light, Rewind or Anna\'s Remedy to cleanse it.',
+    'Before Solar Eclipse it swallows the sun, and the whole sky goes dark. Freeze Time or stack Block!',
+    'In phase two it coils often. Patience: block during the coil, then strike.',
+  ],
+  mesopotamia: [
+    'The Bull of Heaven\'s thunder both hits hard AND burns. Block heavily when it gathers the storm.',
+    'Ishtar\'s Fury raises its attack permanently. Lady Alice\'s Royal Decree can wipe that away!',
+    'Its Celestial Hide shield returns often. Keep shield-breaking cards in your deck.',
   ],
   end: [
     'The Devourer uses every trick we\'ve seen: shields, counters, charges, burns, healing. Build a balanced deck.',

@@ -60,7 +60,7 @@ function openPuzzle(eraId, puzzleId) {
     saveGame();
     renderHeader();
     P = { era, puzzle, timer: null, timeouts: [], diff: eraIndex(era.id) };
-    const runners = { hidden: runHidden, memory: runMemory, slider: runSlider, sequence: runSequence };
+    const runners = { hidden: runHidden, memory: runMemory, slider: runSlider, sequence: runSequence, chess: runChess, recall: runRecall, banquet: runBanquet };
     runners[puzzle.type]();
   };
 }
@@ -74,7 +74,9 @@ function finishPuzzle(success, detail) {
   stopPuzzleTimers();
   const { era, puzzle } = P;
   let body;
+  sfx(success ? 'win' : 'lose');
   if (success) {
+    S.stats.puzzleTypes[puzzle.type] = (S.stats.puzzleTypes[puzzle.type] || 0) + 1;
     const first = !S.puzzles[puzzle.id];
     S.puzzles[puzzle.id] = (S.puzzles[puzzle.id] || 0) + 1;
     const coins = first ? firstCoins(era) : replayCoins(era);
@@ -189,6 +191,7 @@ function runHidden() {
       const ti = targets.indexOf(it.e);
       if (it.target && !P.found.has(ti)) {
         P.found.add(ti);
+        sfx('pop');
         btn.classList.add('found');
         btn.disabled = true;
         document.querySelector(`.find-item[data-i="${ti}"]`).classList.add('done');
@@ -199,6 +202,7 @@ function runHidden() {
         P.timeLeft = Math.max(1, P.timeLeft - 3);
         timerEl.textContent = '⏱ ' + fmtTime(P.timeLeft);
         btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong');
+        sfx('wrong');
       }
     };
   });
@@ -250,6 +254,7 @@ function runMemory() {
       const [a, b] = P.flipped;
       if (deck[+a.dataset.i] === deck[+b.dataset.i]) {
         a.classList.add('matched'); b.classList.add('matched');
+        sfx('pop');
         P.flipped = [];
         P.matched++;
         if (P.matched === pairs) puzzleTimeout(() => finishPuzzle(true, `All pairs matched in ${P.moves} moves.`), 500);
@@ -366,7 +371,7 @@ function runSequence() {
 
   const status = document.getElementById('runeStatus');
   const pads = [...document.querySelectorAll('.rune')];
-  const flash = (i, ms) => { pads[i].classList.add('lit'); puzzleTimeout(() => pads[i].classList.remove('lit'), ms); };
+  const flash = (i, ms) => { if (ms > 300) sfx('rune' + i); pads[i].classList.add('lit'); puzzleTimeout(() => pads[i].classList.remove('lit'), ms); };
 
   const playRound = () => {
     P.accepting = false;
@@ -388,6 +393,7 @@ function runSequence() {
       if (!P || !P.accepting) return;
       const i = +pad.dataset.i;
       flash(i, 220);
+      sfx('rune' + i);
       P.input.push(i);
       const k = P.input.length - 1;
       if (P.seq[k] !== i) {
@@ -409,4 +415,282 @@ function runSequence() {
     };
   });
   playRound();
+}
+
+// ============================================================
+//  5. Chess — checkmate in one
+// ============================================================
+const CHESS_GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+
+function parseFen(fen) {
+  const board = {};
+  fen.split('/').forEach((row, ri) => {
+    let f = 0;
+    for (const ch of row) {
+      if (/\d/.test(ch)) { f += +ch; continue; }
+      board['abcdefgh'[f] + (8 - ri)] = ch;
+      f++;
+    }
+  });
+  return board;
+}
+
+function runChess() {
+  const d = P.diff;
+  const rounds = d >= 7 ? 3 : 2;
+  const start = Math.max(0, Math.min(CHESS_PUZZLES.length - 14, (d - 5) * 7));
+  P.chess = { list: shuffle(CHESS_PUZZLES.slice(start, start + 14)).slice(0, rounds), i: 0, mistakes: 0, sel: null, hint: false, locked: false };
+  drawChess();
+}
+
+function drawChess(flash) {
+  const C = P.chess;
+  const pz = C.list[C.i];
+  const board = C.board || (C.board = parseFen(pz.fen));
+  const dests = C.sel ? pz.legal.filter(m => m.startsWith(C.sel)).map(m => m.slice(2, 4)) : [];
+  let cells = '';
+  for (let r = 8; r >= 1; r--) {
+    for (let f = 0; f < 8; f++) {
+      const sq = 'abcdefgh'[f] + r;
+      const pc = board[sq];
+      const light = (f + r) % 2 === 1;
+      const cls = ['sq', light ? 'light' : 'dark'];
+      if (C.sel === sq) cls.push('sel');
+      if (dests.includes(sq)) cls.push(pc ? 'capture' : 'dest');
+      if (C.hint && pz.sol.startsWith(sq)) cls.push('hinted');
+      if (C.last && C.last.includes(sq)) cls.push('last');
+      cells += `<button class="${cls.join(' ')}" data-sq="${sq}">${pc ? `<span class="pc ${pc === pc.toUpperCase() ? 'w' : 'b'}">${CHESS_GLYPH[pc.toLowerCase()]}&#xFE0E;</span>` : ''}${f === 0 ? `<i class="rk">${r}</i>` : ''}${r === 1 ? `<i class="fl">${'abcdefgh'[f]}</i>` : ''}</button>`;
+    }
+  }
+  openStage(puzzleShell(P.puzzle.name,
+    `<span class="muted">Puzzle ${C.i + 1}/${C.list.length}</span><span>${'❤️'.repeat(3 - C.mistakes)}${'🖤'.repeat(C.mistakes)}</span><button class="btn small" id="chessHint" ${C.hint ? 'disabled' : ''}>💡 Hint</button>`,
+    `<div class="chess-wrap">
+       <p class="rune-status">${flash || 'White to move: find the <b>checkmate in one</b>!'}</p>
+       <div class="chessboard ${C.won ? 'mated' : ''}">${cells}</div>
+       <p class="muted small">Tap a white piece, then tap where it should go. Highlighted squares are legal moves.</p>
+     </div>`), P.era.bg);
+  document.querySelectorAll('.sq').forEach(el => el.onclick = () => chessClick(el.dataset.sq));
+  document.getElementById('chessHint').onclick = () => { if (!C.hint) { C.hint = true; drawChess('💡 The glowing piece delivers the checkmate.'); } };
+}
+
+function chessClick(sq) {
+  const C = P && P.chess;
+  if (!C || C.locked) return;
+  const pz = C.list[C.i];
+  const pc = C.board[sq];
+  if (pc && pc === pc.toUpperCase()) { C.sel = C.sel === sq ? null : sq; sfx('click'); return drawChess(); }
+  if (!C.sel) return;
+  const move = pz.legal.find(m => m.startsWith(C.sel + sq));
+  if (!move) return;
+  const from = C.sel;
+  C.board[sq] = C.board[from];
+  if (move.length === 5) C.board[sq] = 'Q';
+  delete C.board[from];
+  C.last = [from, sq];
+  C.sel = null;
+  if (move === pz.sol) {
+    C.locked = true;
+    C.won = true;
+    sfx('success');
+    drawChess('♚ <b>Checkmate!</b> Brilliant move!');
+    puzzleTimeout(() => {
+      C.i++; C.won = false; C.board = null; C.last = null; C.hint = false; C.locked = false;
+      if (C.i >= C.list.length) finishPuzzle(true, `Solved ${C.list.length} checkmates with ${3 - C.mistakes} lives to spare.`);
+      else drawChess();
+    }, 1100);
+  } else {
+    C.mistakes++;
+    C.locked = true;
+    sfx('wrong');
+    drawChess('✖ Not checkmate. The black king escapes!');
+    puzzleTimeout(() => {
+      if (C.mistakes >= 3) return finishPuzzle(false, 'The black king slipped away one time too many.');
+      C.board = null; C.last = null; C.locked = false;
+      drawChess('Try again. Look for a move the king can\'t escape.');
+    }, 1100);
+  }
+}
+
+// ============================================================
+//  6. Memory Palace — memorise where things are, then recall them
+// ============================================================
+function runRecall() {
+  const d = P.diff;
+  const n = Math.max(5, Math.min(10, d + 1));
+  const cells = 16;
+  const items = shuffle(P.era.pool).slice(0, n);
+  const pos = shuffle([...Array(cells).keys()]).slice(0, n);
+  P.recall = { layout: {}, order: shuffle(items).slice(0, Math.min(6, n)), q: 0, lives: 3, phase: 'study', revealed: {} };
+  items.forEach((e, i) => { P.recall.layout[pos[i]] = e; });
+  const study = Math.max(5, n);
+  drawRecall();
+  let t = study;
+  const bar = () => { const el = document.getElementById('studyBar'); if (el) el.style.width = `${(t / study) * 100}%`; const tt = document.getElementById('studyT'); if (tt) tt.textContent = t; };
+  bar();
+  P.timer = setInterval(() => {
+    t--; bar();
+    if (t <= 0) { clearInterval(P.timer); P.timer = null; P.recall.phase = 'ask'; drawRecall(); }
+  }, 1000);
+}
+
+function drawRecall(msg) {
+  const R = P.recall;
+  const target = R.order[R.q];
+  const grid = [...Array(16).keys()].map(i => {
+    const e = R.layout[i];
+    const show = R.phase === 'study' || R.revealed[i];
+    return `<button class="recall-cell ${show && e ? 'shown' : ''} ${R.revealed[i] || ''}" data-i="${i}">${show && e ? e : R.phase === 'study' ? '' : '<span class="rc-back">?</span>'}</button>`;
+  }).join('');
+  openStage(puzzleShell(P.puzzle.name,
+    `<span>${'❤️'.repeat(R.lives)}${'🖤'.repeat(3 - R.lives)}</span><span class="muted">${R.phase === 'study' ? 'Memorise!' : `Question ${R.q + 1}/${R.order.length}`}</span>`,
+    `<div class="recall-wrap">
+      ${R.phase === 'study'
+        ? `<p class="rune-status">Memorise where everything is… <b id="studyT"></b></p><div class="study-bar"><div id="studyBar"></div></div>`
+        : `<p class="rune-status">${msg || 'Where was this?'}</p><div class="recall-target">${target || '✨'}</div>`}
+      <div class="recall-grid">${grid}</div>
+    </div>`), P.era.bg);
+  if (R.phase === 'ask') document.querySelectorAll('.recall-cell').forEach(el => el.onclick = () => recallClick(+el.dataset.i));
+}
+
+function recallClick(i) {
+  const R = P && P.recall;
+  if (!R || R.phase !== 'ask' || R.busy) return;
+  const target = R.order[R.q];
+  if (R.layout[i] === target) {
+    R.revealed[i] = 'good';
+    R.q++;
+    sfx('success');
+    if (R.q >= R.order.length) { R.busy = true; drawRecall('✔ Perfect recall!'); return puzzleTimeout(() => finishPuzzle(true, `Remembered ${R.order.length} locations with ${R.lives} lives left.`), 800); }
+    drawRecall('✔ Correct! And where was this?');
+  } else {
+    R.lives--;
+    sfx('wrong');
+    R.revealed[i] = 'bad';
+    R.busy = true;
+    drawRecall(R.layout[i] ? `✖ That was the ${R.layout[i]}…` : '✖ That spot was empty…');
+    puzzleTimeout(() => {
+      delete R.revealed[i];
+      R.busy = false;
+      if (R.lives <= 0) return finishPuzzle(false, 'The memories faded away…');
+      drawRecall('Try again. Where was this?');
+    }, 900);
+  }
+}
+
+// ============================================================
+//  7. Banquet Table — seat the guests so every clue is true
+// ============================================================
+const BANQUET_GUESTS = [
+  ['🤴', 'Prince Aldric'], ['👸', 'Princess Mira'], ['🧙', 'Sage Orin'], ['💂', 'Captain Bram'], ['🧛', 'Count Varne'],
+  ['👳', 'Merchant Tariq'], ['🥷', 'Silent Kiyo'], ['🧝', 'Lady Elowen'], ['🧚', 'Fae Lumi'], ['🧞', 'Djinn Zafir'],
+];
+
+function permutations(n) {
+  const out = [];
+  const rec = (arr, rest) => { if (!rest.length) return out.push(arr); rest.forEach((x, i) => rec(arr.concat(x), rest.filter((_, j) => j !== i))); };
+  rec([], [...Array(n).keys()]);
+  return out;
+}
+
+// A seating is an array: seat index -> guest index
+function clueTrue(c, seat) {
+  const at = g => seat.indexOf(g);
+  const n = seat.length;
+  switch (c.t) {
+    case 'pos': return at(c.a) === c.k;
+    case 'notpos': return at(c.a) !== c.k;
+    case 'end': return at(c.a) === 0 || at(c.a) === n - 1;
+    case 'adj': return Math.abs(at(c.a) - at(c.b)) === 1;
+    case 'nadj': return Math.abs(at(c.a) - at(c.b)) !== 1;
+    case 'left': return at(c.a) < at(c.b);
+  }
+  return false;
+}
+
+function clueText(c, guests) {
+  const g = i => `<b>${guests[i][0]} ${guests[i][1]}</b>`;
+  switch (c.t) {
+    case 'pos': return `${g(c.a)} sits in seat ${c.k + 1}.`;
+    case 'notpos': return `${g(c.a)} refuses seat ${c.k + 1}.`;
+    case 'end': return `${g(c.a)} insists on sitting at one end of the table.`;
+    case 'adj': return `${g(c.a)} must sit next to ${g(c.b)}.`;
+    case 'nadj': return `${g(c.a)} and ${g(c.b)} must NOT sit next to each other.`;
+    case 'left': return `${g(c.a)} sits somewhere to the left of ${g(c.b)}.`;
+  }
+}
+
+function makeBanquet(n) {
+  const perms = permutations(n);
+  const sol = shuffle([...Array(n).keys()]);
+  const at = g => sol.indexOf(g);
+  let clues = [];
+  let cands = perms;
+  for (let guard = 0; guard < 400 && cands.length > 1; guard++) {
+    const a = Math.floor(Math.random() * n);
+    let b = Math.floor(Math.random() * n); if (b === a) b = (a + 1) % n;
+    const r = Math.random();
+    let c;
+    if (r < 0.08) c = { t: 'pos', a, k: at(a) };
+    else if (r < 0.2) c = { t: 'notpos', a, k: Math.floor(Math.random() * n) };
+    else if (r < 0.3) c = { t: 'end', a };
+    else if (r < 0.52) c = { t: 'adj', a, b };
+    else if (r < 0.72) c = { t: 'nadj', a, b };
+    else c = { t: 'left', a, b };
+    if (!clueTrue(c, sol)) continue;
+    const next = cands.filter(p => clueTrue(c, p));
+    if (next.length < cands.length) { clues.push(c); cands = next; }
+  }
+  // Remove clues that aren't needed for a unique answer
+  for (let i = clues.length - 1; i >= 0; i--) {
+    const without = clues.filter((_, j) => j !== i);
+    if (perms.filter(p => without.every(c => clueTrue(c, p))).length === 1) clues = without;
+  }
+  return { sol, clues };
+}
+
+function runBanquet() {
+  const n = P.diff >= 7 ? 6 : 5;
+  const guests = shuffle(BANQUET_GUESTS).slice(0, n);
+  const { clues } = makeBanquet(n);
+  P.banquet = { n, guests, clues: shuffle(clues), seats: Array(n).fill(null), sel: null, mistakes: 0, bad: [] };
+  drawBanquet();
+}
+
+function drawBanquet(msg) {
+  const Q = P.banquet;
+  const tray = Q.guests.map((g, i) => i).filter(i => !Q.seats.includes(i));
+  const guestBtn = (i, where) => `<button class="guest ${Q.sel === i ? 'sel' : ''}" data-g="${i}" data-where="${where}"><span class="g-face">${Q.guests[i][0]}</span><small>${Q.guests[i][1]}</small></button>`;
+  openStage(puzzleShell(P.puzzle.name,
+    `<span>${'❤️'.repeat(3 - Q.mistakes)}${'🖤'.repeat(Q.mistakes)}</span>`,
+    `<div class="banquet-wrap">
+      <p class="rune-status">${msg || 'Seat every guest so that all the clues are true.'}</p>
+      <div class="banquet-table">
+        <div class="seats">${Q.seats.map((g, s) => `<div class="seat" data-s="${s}">${g === null ? `<span class="seat-empty">Seat ${s + 1}</span>` : guestBtn(g, 'seat')}<span class="seat-num">${s + 1}</span></div>`).join('')}</div>
+        <div class="table-top">🍗 🍷 🥖 🕯️ 🍇 🧀 🕯️ 🍰</div>
+      </div>
+      <div class="guest-tray">${tray.map(i => guestBtn(i, 'tray')).join('') || '<span class="muted">Everyone is seated!</span>'}</div>
+      <ol class="clue-list">${Q.clues.map((c, i) => `<li class="${Q.bad.includes(i) ? 'bad' : ''}">${clueText(c, Q.guests)}</li>`).join('')}</ol>
+      <div class="btn-row"><button class="btn ghost small" id="bqClear">Clear table</button><button class="btn primary" id="bqCheck" ${Q.seats.includes(null) ? 'disabled' : ''}>🔔 Ring the dinner bell</button></div>
+    </div>`), P.era.bg);
+  document.querySelectorAll('.guest').forEach(el => el.onclick = ev => { ev.stopPropagation(); const g = +el.dataset.g; Q.sel = Q.sel === g ? null : g; sfx('click'); drawBanquet(msg); });
+  document.querySelectorAll('.seat').forEach(el => el.onclick = () => {
+    if (Q.sel === null) return;
+    const s = +el.dataset.s;
+    const from = Q.seats.indexOf(Q.sel);
+    const occupant = Q.seats[s];
+    if (from >= 0) Q.seats[from] = occupant; // swap seats
+    Q.seats[s] = Q.sel;
+    Q.sel = null; Q.bad = [];
+    sfx('click');
+    drawBanquet();
+  });
+  document.getElementById('bqClear').onclick = () => { Q.seats = Array(Q.n).fill(null); Q.bad = []; drawBanquet(); };
+  document.getElementById('bqCheck').onclick = () => {
+    Q.bad = Q.clues.map((c, i) => (clueTrue(c, Q.seats) ? -1 : i)).filter(i => i >= 0);
+    if (!Q.bad.length) { sfx('success'); drawBanquet('🎉 A perfect seating! The feast begins!'); return puzzleTimeout(() => finishPuzzle(true, `Every guest is delighted${Q.mistakes ? '' : ', first try!'}`), 900); }
+    Q.mistakes++;
+    sfx('wrong');
+    if (Q.mistakes >= 3) return puzzleTimeout(() => finishPuzzle(false, 'The guests stormed off in a huff…'), 700);
+    drawBanquet(`✖ ${Q.bad.length} clue${Q.bad.length > 1 ? 's are' : ' is'} not satisfied (marked in red).`);
+  };
 }

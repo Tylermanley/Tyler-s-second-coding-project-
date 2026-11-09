@@ -118,6 +118,7 @@ function storyAfterBoss(eraId) {
 
 function leaveBattleResult(tab) {
   closeStage();
+  setMusic(backgroundMusic());
   showTab(tab);
   if (pendingStory) { const k = pendingStory; pendingStory = null; playStory(k); }
 }

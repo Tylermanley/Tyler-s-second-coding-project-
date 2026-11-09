@@ -53,6 +53,12 @@ function newState() {
     ventures: [],
     upgrades: {},
     bounty: false,
+    // Seasons, journal, settings
+    festivals: {},
+    achievements: {},
+    title: null,
+    stats: { harvested: 0, puzzleTypes: {}, ventureWins: 0, festivals: 0 },
+    settings: { sfx: true, music: true },
   };
 }
 
@@ -118,6 +124,7 @@ function grantXp(n) {
     S.hero.level++;
     gained++;
   }
+  if (gained && typeof sfx === 'function') sfx('level');
   return gained;
 }
 
@@ -129,6 +136,7 @@ function grantArtifact(id) {
 function eraIndex(eraId) { return ERAS.findIndex(e => e.id === eraId); }
 
 function eraUnlocked(era) {
+  if (S.bosses[era.id]) return true;
   const i = eraIndex(era.id);
   if (i === 0) return true;
   if (era.requires) return !!S.bosses[era.requires];
@@ -153,6 +161,8 @@ function spendEnergy(n) {
 
 // Older saves: hand out cards for puzzles and bosses already cleared
 function syncProgress(st) {
+  st.stats = Object.assign({ harvested: 0, puzzleTypes: {}, ventureWins: 0, festivals: 0 }, st.stats || {});
+  st.settings = Object.assign({ sfx: true, music: true }, st.settings || {});
   ['anna', 'cedric', 'alice', 'quinn'].forEach(w => { if (!st.rel[w]) st.rel[w] = { pts: 0, met: false, events: [] }; });
   for (const pid in st.puzzles) {
     const cid = PUZZLE_CARDS[pid];
@@ -222,3 +232,10 @@ function addAffection(who, pts) {
 function resetDailyIfNeeded() {
   if (S.daily.day !== S.day) S.daily = { day: S.day, talked: {}, gifted: {} };
 }
+
+// ---------- calendar ----------
+function seasonIndex(day = S.day) { return Math.floor((day - 1) / SEASON_LEN) % 4; }
+function season(day = S.day) { return SEASONS[seasonIndex(day)]; }
+function dayOfSeason(day = S.day) { return ((day - 1) % SEASON_LEN) + 1; }
+function year(day = S.day) { return Math.floor((day - 1) / (SEASON_LEN * 4)) + 1; }
+function inSeason(cropId, day = S.day) { return CROPS[cropId].seasons.includes(season(day).id); }

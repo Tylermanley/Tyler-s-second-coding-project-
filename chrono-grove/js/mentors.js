@@ -30,6 +30,7 @@ function mentorMorning() {
     if (Math.random() < V.odds) {
       const pay = Math.round(v.amount * (1 + V.ret));
       S.coins += pay;
+      S.stats.ventureWins++;
       msgs.push(`${V.icon} ${V.name} returned 🪙${pay}!`);
     } else {
       const back = Math.round(v.amount * 0.25);

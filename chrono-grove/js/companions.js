@@ -394,6 +394,7 @@ function renderLine() {
   const textEl = document.getElementById('dlgText');
   DLG.timer = setInterval(() => {
     n += 2;
+    if (n % 6 === 0) voiceBlip(ln.who);
     textEl.textContent = DLG.full.slice(0, n);
     if (n >= DLG.full.length) finishTyping();
   }, 28);
@@ -427,6 +428,7 @@ function talkTier(who) {
 
 function heartPopup(who, gained, pts) {
   floatHearts();
+  sfx('heart');
   const h = hearts(who);
   toast(`💗 ${COMPANIONS[who].name} +${pts} affection${gained ? ` — <b>${h} ♥!</b>` : ''}`);
 }

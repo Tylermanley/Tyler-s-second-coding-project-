@@ -39,14 +39,18 @@ function closeStage() {
 // ---------- header ----------
 function renderHeader() {
   const st = stats();
-  const weather = { sunny: '☀️', rain: '🌧️', cloudy: '☁️' }[S.weather];
+  const weather = { sunny: '☀️', rain: '🌧️', cloudy: '☁️', snow: '🌨️' }[S.weather];
+  const se = season();
   document.getElementById('hud').innerHTML = `
-    <div class="hud-item">📅 Day <b>${S.day}</b> ${weather}</div>
+    <div class="hud-item" title="Day ${S.day}">${se.icon} ${se.name} <b>${dayOfSeason()}</b>, Y${year()} ${weather}</div>
     <div class="hud-item">🪙 <b>${S.coins}</b></div>
     <div class="hud-item energy" title="Energy">⚡ <div class="mini-bar"><div style="width:${(S.energy / st.maxEnergy) * 100}%"></div></div><b>${S.energy}/${st.maxEnergy}</b></div>
     <div class="hud-item" title="XP ${S.hero.xp}/${xpToNext()}">⭐ Lv <b>${S.hero.level}</b> <div class="mini-bar xp"><div style="width:${(S.hero.xp / xpToNext()) * 100}%"></div></div></div>
     <div class="hud-item" title="Satchel">🎒 ${satchelCount()}/${satchelCap()}</div>
-    <div class="hud-item stats">❤️ ${st.maxHp} ⚔️ ${st.atk} 🛡️ ${st.def}</div>`;
+    <div class="hud-item stats">❤️ ${st.maxHp} ⚔️ ${st.atk} 🛡️ ${st.def}</div>
+    ${S.title ? `<div class="hud-item title-chip">🎖️ ${S.title}</div>` : ''}
+    <button class="hud-item hud-btn" title="Sound effects" onclick="toggleSetting('sfx')">${S.settings.sfx ? '🔊' : '🔇'}</button>
+    <button class="hud-item hud-btn" title="Music" onclick="toggleSetting('music')"><span class="${S.settings.music ? '' : 'off'}">🎵</span></button>`;
 }
 
 function showTab(tab) {
@@ -65,6 +69,7 @@ function renderAll() {
   if (currentTab === 'market') renderMarket();
   if (currentTab === 'help') renderHelp();
   if (currentTab === 'town') renderCompanions();
+  checkAchievements();
 }
 
 // ---------- Time Portal ----------
@@ -117,6 +122,7 @@ function renderMuseum() {
   const placed = new Set(placedArtifacts());
   view.innerHTML = `
     <h2 class="view-title">🏛️ Museum of the Ages</h2>
+    ${journalHtml()}
     <p class="muted center">Collected <b>${S.artifacts.length}</b> of <b>${total}</b> artifacts.</p>
     <div class="progress"><div style="width:${(S.artifacts.length / total) * 100}%"></div></div>
     ${ERAS.map(era => {
@@ -134,10 +140,21 @@ function renderMuseum() {
             </div>`;
           }).join('')}
         </div></section>`;
-    }).join('')}`;
+    }).join('')}
+    <section class="museum-era"><h3>🎉 Festival Keepsakes</h3><div class="museum-grid">
+      ${Object.keys(ARTIFACTS).filter(id => ARTIFACTS[id].era === 'festival').map(id => {
+        const a = ARTIFACTS[id];
+        const own = S.artifacts.includes(id);
+        return `<div class="museum-card ${own ? '' : 'missing'}"><div class="m-emoji">${own ? a.emoji : '❔'}</div><b>${own ? a.name : 'Undiscovered'}</b><small>${own ? a.desc : 'Win a seasonal festival.'}</small>${own ? `<span class="bonus">${bonusText(a.bonus)}</span><span class="tag ${placed.has(id) ? 'on' : ''}">${placed.has(id) ? 'On display' : 'In vault'}</span>` : ''}</div>`;
+      }).join('')}
+    </div></section>`;
 }
 
 // ---------- Market ----------
+function seasonTags(id) {
+  return `<span class="season-tags">${CROPS[id].seasons.map(s => SEASONS.find(x => x.id === s).icon).join('')}</span>`;
+}
+
 function forgeCost(kind) {
   const n = kind === 'atk' ? S.hero.forgeAtk : S.hero.forgeDef;
   return price(80 + n * 70);
@@ -165,7 +182,7 @@ function renderMarket() {
         ${Object.entries(CROPS).map(([id, c]) => {
           const ok = cropUnlocked(id);
           return `<div class="shop-row ${ok ? '' : 'locked'}">
-            <span>${c.emoji} <b>${c.name}</b><small>${ok ? `${c.days} days · sells 🪙${c.sell} · own ×${S.seeds[id] || 0}` : `Unlocks after defeating the ${ERA_BY_ID[c.unlock].name} boss`}</small></span>
+            <span>${c.emoji} <b>${c.name}</b> ${seasonTags(id)}<small>${ok ? `${c.days} days · sells 🪙${c.sell} · own ×${S.seeds[id] || 0}${inSeason(id) ? '' : ' · <b class="oos">out of season</b>'}` : `Unlocks after defeating the ${ERA_BY_ID[c.unlock].name} boss`}</small></span>
             ${ok ? `<span class="buy-btns"><button class="btn small" ${S.coins < price(c.cost) ? 'disabled' : ''} onclick="buySeed('${id}',1)">🪙${price(c.cost)}</button><button class="btn small" ${S.coins < price(c.cost * 5) ? 'disabled' : ''} onclick="buySeed('${id}',5)">×5</button></span>` : '<span>🔒</span>'}
           </div>`;
         }).join('')}
@@ -245,12 +262,16 @@ function renderHelp() {
   document.getElementById('view-help').innerHTML = `
     <h2 class="view-title">❔ How to Play</h2>
     <div class="help panel">
+      <h3>📅 Seasons &amp; Festivals</h3>
+      <p>Each season lasts ${SEASON_LEN} days: 🌸 Spring, ☀️ Summer, 🍂 Autumn, ❄️ Winter. Crops can only be <b>planted</b> in their seasons (shown by the icons in your seed pouch and the Market), but crops already in the ground keep growing. Winter brings snow instead of rain. On day ${7} of every season there's a festival: Anna's <b>Blossom & Book Fair</b>, Cedric's <b>Regatta</b>, Lady Alice's <b>Harvest Gala</b> and Minister Quinn's <b>Treasury Auction</b>.</p>
+      <h3>📔 Journal &amp; Sound</h3>
+      <p>Anna records your achievements in her Adventure Journal (in the Museum). Each one pays coins, and many unlock a title you can wear. Use 🔊 and 🎵 in the top bar to toggle sound effects and music.</p>
       <h3>🌱 Your Homestead</h3>
       <p>Use the <b>Hoe</b> to till grass and clear rocks, <b>Plant</b> seeds, and <b>Water</b> them. Watered crops grow one day each time you press <b>End Day</b>. Click a fully grown crop to harvest it, then sell it at the Market. Rainy days water everything for free.</p>
       <h3>🏺 Artifacts</h3>
       <p>Artifacts are recovered from puzzles and bosses. <b>Display</b> them on your land to activate their powers: more attack, defence, HP, energy, daily coins, or sprinkler effects that water the 8 tiles around them every morning.</p>
       <h3>🌀 Time Portal &amp; Puzzles</h3>
-      <p>Each era has three puzzles — 🔍 hidden objects, 🃏 memory pairs, 🧩 sliding tiles and 🔮 rune sequences. Each costs ⚡${PUZZLE_ENERGY}. The first clear grants an artifact; replays give coins and XP.</p>
+      <p>Each era has three puzzles: 🔍 hidden objects, 🃏 memory pairs, 🧩 sliding tiles, 🔮 rune sequences, ♟️ checkmate-in-one chess, 🧠 Memory Palace recall and 🍽️ Banquet Table seating. Each costs ⚡${PUZZLE_ENERGY}. The first clear grants an artifact; replays give coins and XP.</p>
       <h3>🃏 Card Battles</h3>
       <p>Battle cards are your main weapon. Cedric gives you a starter deck and forges a new card for every puzzle you solve and every boss you defeat. You can buy more on his ship and choose your deck (${DECK_MIN}–${DECK_MAX} cards).</p>
       <ul>

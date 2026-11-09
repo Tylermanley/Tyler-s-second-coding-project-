@@ -47,6 +47,8 @@ function handleTile(i) {
   if (cropReady(t)) {
     const c = CROPS[t.crop.id];
     const where = stash('produce', t.crop.id, 1);
+    S.stats.harvested++;
+    sfx('harvest');
     t.crop = null;
     toast(where.toLib ? `Harvested ${c.emoji} ${c.name}! Your satchel is full, so Anna stored it in the archive. 📚` : `Harvested ${c.emoji} ${c.name}! Sell it at the Market or give it as a gift.`);
     return commitFarm();
@@ -72,6 +74,7 @@ function handleTile(i) {
     if (t.t !== 'soil' || t.crop) return;
     const id = farmUI.seed;
     if (!S.seeds[id]) return toast(`No ${CROPS[id].name} seeds — buy some at the Market.`);
+    if (!inSeason(id)) return toast(`${CROPS[id].emoji} ${CROPS[id].name} can't be planted in ${season().name}. Try: ${Object.keys(CROPS).filter(c => inSeason(c) && cropUnlocked(c)).map(c => CROPS[c].emoji).join(' ')}`);
     S.seeds[id]--;
     t.crop = { id, age: 0 };
   } else if (tool === 'place') {
@@ -120,7 +123,7 @@ function endDay() {
   });
   S.day++;
   const roll = Math.random();
-  S.weather = roll < 0.22 ? 'rain' : roll < 0.3 ? 'cloudy' : 'sunny';
+  S.weather = roll < 0.22 ? (season().id === 'winter' ? 'snow' : 'rain') : roll < 0.3 ? 'cloudy' : 'sunny';
   applyMorningWater();
   const st = stats();
   S.energy = st.maxEnergy;
@@ -132,9 +135,11 @@ function endDay() {
   const mentorMsg = mentorMorning();
   saveGame();
   renderAll();
-  const weatherMsg = { rain: '🌧️ It\'s raining — every crop is watered!', cloudy: '☁️ A cloudy, calm morning.', sunny: '☀️ A bright sunny morning.' }[S.weather];
+  const weatherMsg = { rain: '🌧️ It\'s raining, so every crop is watered!', cloudy: '☁️ A cloudy, calm morning.', sunny: '☀️ A bright sunny morning.', snow: '🌨️ Snow blankets the grove. Crops still need watering.' }[S.weather];
+  if (dayOfSeason() === 1) { toast(`${season().icon} <b>${season().name} has arrived!</b> New crops are in season.`, 5000); setMusic(backgroundMusic()); }
   toast(`Day ${S.day}. ${weatherMsg} ${grown ? `${grown} crop${grown > 1 ? 's' : ''} grew${ready ? `, ${ready} ready to harvest` : ''}.` : ''} ${st.gold ? `Artifacts earned 🪙 ${st.gold}.` : ''}${partnerMsg} ${mentorMsg}`, 5000);
   quinnArrivalCheck();
+  if (festivalToday() && !DLG) setTimeout(() => { if (!DLG && festivalToday()) openFestival(); }, 600);
 }
 
 function tileView(t, i, sprinkled) {
@@ -174,17 +179,23 @@ function renderFarm() {
   view.innerHTML = `
     <div class="farm-layout">
       <div class="farm-main">
+        ${festivalBanner()}
         ${heistBanner()}
         <div class="toolbar">
           ${Object.entries(TOOLS).map(([id, tl]) => `<button class="tool ${farmUI.tool === id ? 'active' : ''}" data-tool="${id}" title="${tl.tip}"><span>${tl.icon}</span>${tl.name}</button>`).join('')}
         </div>
         <p class="tool-tip">${TOOLS[farmUI.tool].tip}</p>
-        <div class="farm-grid" style="grid-template-columns:repeat(${PLOT_W},1fr)">
+        <div class="farm-grid season-${season().id}" style="grid-template-columns:repeat(${PLOT_W},1fr)">
           ${S.plot.map((t, i) => tileView(t, i, sprinkled.has(i))).join('')}
         </div>
         <button class="btn primary end-day" id="endDayBtn">🌙 End Day ${S.day}</button>
       </div>
       <aside class="farm-side">
+        <section class="panel calendar">
+          <h3>${season().icon} ${season().name}, Year ${year()}</h3>
+          <div class="cal-strip">${[...Array(SEASON_LEN)].map((_, i) => `<span class="cal-day ${i + 1 === dayOfSeason() ? 'today' : ''} ${i + 1 < dayOfSeason() ? 'past' : ''} ${i + 1 === FESTIVAL_DAY ? 'fest' : ''}">${i + 1 === FESTIVAL_DAY ? FESTIVALS[season().id].icon : i + 1}</span>`).join('')}</div>
+          <p class="muted small">${daysToFestival() === 0 ? `🎉 The <b>${FESTIVALS[season().id].name}</b> is today!` : `Next festival: <b>${FESTIVALS[dayOfSeason() <= FESTIVAL_DAY ? season().id : SEASONS[(seasonIndex() + 1) % 4].id].name}</b> in ${daysToFestival()} day${daysToFestival() === 1 ? '' : 's'}.`} In season: ${Object.keys(CROPS).filter(c => inSeason(c) && cropUnlocked(c)).map(c => CROPS[c].emoji).join(' ') || '—'}</p>
+        </section>
         ${S.partner ? `<section class="panel partner-panel" style="background:${COMPANIONS[S.partner].bg}">
           <div class="pp-face">${portraitSVG(S.partner, 'blush', { crop: 'bust' })}</div>
           <div class="bubble"><b>${COMPANIONS[S.partner].name}:</b> ${COMPANIONS[S.partner].morning}</div>
@@ -192,7 +203,7 @@ function renderFarm() {
         <section class="panel">
           <h3>🌱 Seed Pouch</h3>
           <div class="pick-list">
-            ${seedIds.map(id => `<button class="pick ${farmUI.seed === id ? 'active' : ''}" data-seed="${id}">${CROPS[id].emoji} ${CROPS[id].name} <b>×${S.seeds[id] || 0}</b><small>${CROPS[id].days} days</small></button>`).join('')}
+            ${seedIds.map(id => `<button class="pick ${farmUI.seed === id ? 'active' : ''}" data-seed="${id}">${CROPS[id].emoji} ${CROPS[id].name} <b>×${S.seeds[id] || 0}</b><small>${CROPS[id].days} days · ${seasonTags(id)}${inSeason(id) ? '' : ' <b class="oos">out of season</b>'}</small></button>`).join('')}
           </div>
         </section>
         <section class="panel">
