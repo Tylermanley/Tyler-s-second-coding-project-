@@ -3,12 +3,14 @@
 // ============================================================
 
 const SAVE_KEY = 'chronoGrove.save.v1';
-const PLOT_W = 8, PLOT_H = 6;
+const PLOT_W = 8;
+let PLOT_H = 6;
+function syncPlotSize() { PLOT_H = Math.ceil(S.plot.length / PLOT_W); }
 let S = null;
 
 function newState() {
   const plot = [];
-  for (let i = 0; i < PLOT_W * PLOT_H; i++) plot.push({ t: 'grass' });
+  for (let i = 0; i < PLOT_W * 6; i++) plot.push({ t: "grass" });
   const starter = [19, 20, 27, 28];
   let placed = 0;
   while (placed < 14) {
@@ -38,7 +40,7 @@ function newState() {
     library: { items: {}, produce: {} },
     cards: Object.assign({}, STARTER_DECK),
     deck: Object.assign({}, STARTER_DECK),
-    rel: { anna: { pts: 0, met: false, events: [] }, cedric: { pts: 0, met: false, events: [] }, alice: { pts: 0, met: false, events: [] }, quinn: { pts: 0, met: false, events: [] } },
+    rel: { anna: { pts: 0, met: false, events: [] }, cedric: { pts: 0, met: false, events: [] }, alice: { pts: 0, met: false, events: [] }, quinn: { pts: 0, met: false, events: [] }, peter: { pts: 0, met: false, events: [] } },
     partner: null,
     support: null,
     locket: 0,
@@ -57,18 +59,42 @@ function newState() {
     festivals: {},
     achievements: {},
     title: null,
-    stats: { harvested: 0, puzzleTypes: {}, ventureWins: 0, festivals: 0 },
-    settings: { sfx: true, music: true },
+    stats: { harvested: 0, puzzleTypes: {}, ventureWins: 0, festivals: 0, tilled: 0, planted: 0, watered: 0, fished: 0, cooked: 0, requests: 0 },
+    settings: { sfx: true, music: true, sfxVol: 0.5, musicVol: 0.16, textSpeed: 'normal', colorblind: false, reducedMotion: false, difficulty: 'normal' },
+    // Homestead expansion, cooking, fishing
+    pantry: { egg: 0 },
+    fish: {},
+    fishdex: {},
+    dishes: {},
+    meal: null,
+    buildings: { greenhouse: false, coop: false, expansions: 0 },
+    chickens: 0,
+    gh: [],
+    decor: {},
+    requests: [],
+    // Battles & modes
+    golden: {},
+    elite: {},
+    rift: { best: 0, run: null },
+    dailyChallenge: { last: null, streak: 0 },
+    // Story & meta
+    seen: {},
+    quest: { jane: 0 },
+    wedding: null,
+    tutorial: { dismissed: false, done: {} },
   };
 }
 
+function currentSlot() { try { return +(localStorage.getItem('chronoGrove.slot') || 1); } catch (e) { return 1; } }
+function slotKey(n = currentSlot()) { return n === 1 ? SAVE_KEY : `${SAVE_KEY}.s${n}`; }
+
 function saveGame() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* storage unavailable */ }
+  try { localStorage.setItem(slotKey(), JSON.stringify(S)); } catch (e) { /* storage unavailable */ }
 }
 
 function loadGame() {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
+    const raw = localStorage.getItem(slotKey());
     if (raw) {
       const data = JSON.parse(raw);
       if (data && data.version === 1 && Array.isArray(data.plot)) return syncProgress(Object.assign(newState(), data));
@@ -78,8 +104,9 @@ function loadGame() {
 }
 
 function resetGame() {
-  try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+  try { localStorage.removeItem(slotKey()); } catch (e) { /* ignore */ }
   S = newState();
+  syncPlotSize();
 }
 
 // ---------- derived values ----------
@@ -93,12 +120,15 @@ function unplacedArtifacts() {
 }
 
 function bonuses() {
-  const b = { atk: 0, def: 0, hp: 0, energy: 0, gold: 0, sprinkler: 0 };
+  const b = { atk: 0, def: 0, hp: 0, energy: 0, gold: 0, sprinkler: 0, sets: 0 };
   placedArtifacts().forEach(id => {
     const a = ARTIFACTS[id];
     if (!a) return;
     for (const k in a.bonus) b[k] += a.bonus[k];
   });
+  S.plot.forEach(t => { if (t.t === 'deco' && DECOR[t.id]) for (const k in DECOR[t.id].bonus) b[k] += DECOR[t.id].bonus[k]; });
+  b.sets = completedSets().length;
+  b.atk += 3 * b.sets; b.def += 3 * b.sets; b.gold += 10 * b.sets;
   return b;
 }
 
@@ -161,9 +191,14 @@ function spendEnergy(n) {
 
 // Older saves: hand out cards for puzzles and bosses already cleared
 function syncProgress(st) {
-  st.stats = Object.assign({ harvested: 0, puzzleTypes: {}, ventureWins: 0, festivals: 0 }, st.stats || {});
-  st.settings = Object.assign({ sfx: true, music: true }, st.settings || {});
-  ['anna', 'cedric', 'alice', 'quinn'].forEach(w => { if (!st.rel[w]) st.rel[w] = { pts: 0, met: false, events: [] }; });
+  const fresh = newState();
+  st.stats = Object.assign(fresh.stats, st.stats || {});
+  st.settings = Object.assign(fresh.settings, st.settings || {});
+  st.buildings = Object.assign(fresh.buildings, st.buildings || {});
+  st.quest = Object.assign(fresh.quest, st.quest || {});
+  st.tutorial = Object.assign(fresh.tutorial, st.tutorial || {});
+  st.pantry = Object.assign(fresh.pantry, st.pantry || {});
+  ['anna', 'cedric', 'alice', 'quinn', 'peter'].forEach(w => { if (!st.rel[w]) st.rel[w] = { pts: 0, met: false, events: [] }; });
   for (const pid in st.puzzles) {
     const cid = PUZZLE_CARDS[pid];
     if (cid && !st.cards[cid]) { st.cards[cid] = 1; if (deckSize(st) < DECK_MAX) st.deck[cid] = (st.deck[cid] || 0) + 1; }

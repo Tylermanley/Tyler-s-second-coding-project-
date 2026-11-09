@@ -36,7 +36,7 @@ const CHAR_STYLE = {
   },
 };
 
-const EMOTES = { happy: '♪', blush: '💗', surprised: '❗', sad: '💧', determined: '🔥', smirk: '✦' };
+const EMOTES = { angry: '💢', wink: '✦', cry: '💧', happy: '♪', blush: '💗', surprised: '❗', sad: '💧', determined: '🔥', smirk: '✦' };
 
 function eyeSVG(cx, cy, flip, st, id, expr) {
   if (expr === 'happy') {
@@ -92,6 +92,9 @@ function mouthSVG(expr) {
     sad: line('M94 144 Q100 139 106 144'),
     surprised: '<ellipse cx="100" cy="142" rx="3.6" ry="4.6" fill="#7a2a2a"/>',
     happy: '<path d="M91 137 Q100 153 109 137 Z" fill="#7a2a2a"/><path d="M95 145 Q100 141 105 145 Q100 151 95 145Z" fill="#ec7a80"/>',
+    angry: '<path d="M93 145 Q100 138 107 145" fill="none" stroke="#7a2a2a" stroke-width="2.6" stroke-linecap="round"/>',
+    wink: line('M92 139 Q100 147 108 139'),
+    cry: '<path d="M92 142 Q96 138 100 142 Q104 138 108 142" fill="none" stroke="#9a4a3a" stroke-width="2" stroke-linecap="round"/>',
   }[expr] || line('M94 141 Q100 143 106 141');
   return `<g class="mouth"><g class="m-shut">${shut}</g><g class="m-open"><path d="M94 139 Q100 137 106 139 Q105 148 100 148 Q95 148 94 139Z" fill="#7a2a2a"/><path d="M96 145 Q100 143 104 145 Q100 148 96 145Z" fill="#ec7a80"/></g></g>`;
 }
@@ -282,24 +285,41 @@ function portraitSVG(id, expr, opts = {}) {
       <path d="M88 148 L88 184 L112 184 L112 148Z" fill="${st.skin}"/>
       <path d="M88 152 Q100 168 112 152 L112 162 Q100 174 88 162Z" fill="${st.shade}"/>
       ${p.body}
+      ${seasonalOutfit(id)}
       <g class="tilt">
         <ellipse cx="59" cy="110" rx="5.5" ry="9" fill="${st.skin}"/><ellipse cx="141" cy="110" rx="5.5" ry="9" fill="${st.skin}"/>
         <path d="${FACE_PATH}" fill="${st.skin}"/>
         <path d="M62 100 Q66 70 100 66 Q80 76 74 100Z" fill="${st.shade}" opacity=".35"/>
         ${blushSVG(expr)}
-        ${eyeSVG(80, 108, -1, st, n, expr)}
-        ${eyeSVG(120, 108, 1, st, n, expr)}
+        ${eyeSVG(80, 108, -1, st, n, expr === 'wink' ? 'smile' : expr)}
+        ${eyeSVG(120, 108, 1, st, n, expr === 'wink' ? 'happy' : expr)}
+        ${expr === 'cry' ? '<g fill="#8fd3ff" opacity=".9"><path d="M72 118 Q69 128 72 134 Q76 128 72 118Z"/><path d="M128 118 Q125 128 128 134 Q132 128 128 118Z"/></g>' : ''}
         <path d="M101 123 L99 129 L102.5 129" fill="none" stroke="${st.shade}" stroke-width="1.4" stroke-linecap="round"/>
         ${mouthSVG(expr)}
         <g class="sway-side">${p.side}</g>
         ${p.front}
         ${p.shine}
-        ${browSVG(80, 108, -1, st, expr)}
-        ${browSVG(120, 108, 1, st, expr)}
+        ${browSVG(80, 108, -1, st, { angry: 'determined', cry: 'sad', wink: 'smirk' }[expr] || expr)}
+        ${browSVG(120, 108, 1, st, { angry: 'determined', cry: 'sad', wink: 'smirk' }[expr] || expr)}
         ${p.acc}
       </g>
     </g>
   </svg>${emote}
   <span class="sparkle s1">✦</span><span class="sparkle s2">✧</span><span class="sparkle s3">✦</span>
 </div>`;
+}
+
+// ---------- Seasonal outfits ----------
+const SCARF = { anna: '#d6454f', cedric: '#e3b341', alice: '#f4f6ff', quinn: '#3f7a52', peter: '#6b2433', jane: '#2b1a12' };
+function seasonalOutfit(id) {
+  if (typeof S === 'undefined' || !S || typeof season !== 'function') return '';
+  const se = season().id;
+  if (se === 'winter' && SCARF[id]) {
+    const c = SCARF[id];
+    return `<path d="M80 171 Q100 188 120 171 L124 186 Q100 203 76 186Z" fill="${c}"/>
+      <path d="M108 189 L114 222 L125 217 L117 186Z" fill="${c}"/>
+      <path d="M82 178 Q100 193 118 178 M112 200 L120 198 M113 208 L121 206" stroke="rgba(255,255,255,.4)" stroke-width="2" fill="none"/>`;
+  }
+  const pin = { spring: '🌸', summer: '🌻', autumn: '🍁' }[se];
+  return pin && id !== 'hero' ? `<text x="118" y="222" font-size="13">${pin}</text>` : '';
 }

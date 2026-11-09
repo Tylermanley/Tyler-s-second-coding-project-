@@ -10,8 +10,8 @@ function audioReady() {
   try {
     AC = new (window.AudioContext || window.webkitAudioContext)();
     master = AC.createGain(); master.gain.value = 0.9; master.connect(AC.destination);
-    sfxGain = AC.createGain(); sfxGain.gain.value = 0.5; sfxGain.connect(master);
-    musicGain = AC.createGain(); musicGain.gain.value = 0.16; musicGain.connect(master);
+    sfxGain = AC.createGain(); sfxGain.gain.value = S ? S.settings.sfxVol : 0.5; sfxGain.connect(master);
+    musicGain = AC.createGain(); musicGain.gain.value = S ? S.settings.musicVol : 0.16; musicGain.connect(master);
     return true;
   } catch (e) { return false; }
 }

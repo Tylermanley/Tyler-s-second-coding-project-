@@ -713,3 +713,93 @@ main { max-width: 1180px; margin: 0 auto; padding: 16px; }
 .hud-btn { border: none; cursor: pointer; color: inherit; font-size: 1rem; }
 .title-chip { background: rgba(255, 211, 77, .25) !important; }
 .hud-btn .off { opacity: .35; text-decoration: line-through; }
+
+/* ============================================================
+   Homestead expansion, cooking, fishing
+   ============================================================ */
+.farm-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.coop-chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 4px 12px; font-weight: bold; font-size: .85rem; }
+.greenhouse { margin-top: 12px; }
+.greenhouse h4 { margin: 0 0 6px; }
+.gh-grid { background: linear-gradient(#cfeccf, #9fd49a); border-color: #7fbf7a; }
+.tile.path { background: repeating-linear-gradient(45deg, #b8a58a 0 8px, #a8957a 8px 16px); }
+.set-bonus { font-size: .82rem; font-weight: bold; color: #a87f1e; }
+.recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; text-align: left; }
+.recipe { background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 3px; }
+.recipe.ready { border-color: #4caf50; box-shadow: 0 0 0 2px #cdeabb; }
+.recipe .v-icon { font-size: 2rem; text-align: center; }
+.recipe ul { list-style: none; padding: 0; margin: 4px 0; font-size: .8rem; color: var(--red); }
+.recipe li.ok { color: var(--green-d); }
+.recipe .effect { color: #2f5a40; font-weight: bold; }
+.meal-pick { margin: 8px 0; }
+.meal-pick .support-opt { font-size: .85rem; }
+.pond { position: relative; height: 170px; border-radius: 16px; overflow: hidden; margin: 8px 0; background: repeating-linear-gradient(0deg, #4aa3d8 0 14px, #58afe0 14px 28px); box-shadow: inset 0 0 30px rgba(0,0,0,.25); }
+.pond .bobber { position: absolute; left: 50%; top: 45%; font-size: 1.8rem; transform: translate(-50%, -50%); }
+.pond.wait .bobber { animation: bob 1.6s ease-in-out infinite; }
+.pond.bite .bobber { animation: shake .3s infinite; font-size: 2.4rem; }
+.pond .catch { position: absolute; left: 50%; top: 20%; font-size: 3.4rem; transform: translateX(-50%); animation: pop .5s; }
+.fish-meter { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); }
+.fish-meter .zone { transform: translateX(-50%); transition: none; }
+.fishdex { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+.fd { background: #f3ecd9; border-radius: 10px; padding: 6px; text-align: center; opacity: .55; }
+.fd.got { opacity: 1; background: #e3f3ff; }
+.fd span { font-size: 1.6rem; display: block; }
+.fd small { font-size: .65rem; }
+
+/* ============================================================
+   Modes: daily challenge, rift, elite, duo
+   ============================================================ */
+.mode-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.mode-card { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px; cursor: pointer; color: #fff; box-shadow: var(--shadow); transition: transform .15s; }
+.mode-card:hover { transform: translateY(-2px); }
+.mode-card small { display: block; opacity: .9; font-size: .8rem; }
+.mode-icon { font-size: 2.2rem; }
+.daily-card { background: linear-gradient(135deg, #e3a91f, #d9455f); }
+.daily-card.done { filter: saturate(.6); }
+.rift-card { background: linear-gradient(135deg, #2b1e4f, #6a4bc4); }
+.elite-btn { background: linear-gradient(90deg, rgba(255, 211, 77, .9), rgba(255, 140, 60, .9)); }
+.elite-btn small { color: #4a2a00; }
+.center-row { justify-content: center; }
+.pick-card { border: none; background: none; padding: 0; cursor: pointer; transition: transform .15s; }
+.pick-card:hover { transform: translateY(-6px) scale(1.04); }
+.card.golden { border-color: #e3a91f !important; background: linear-gradient(170deg, #fff8d6, #ffe08a) !important; box-shadow: 0 0 0 2px #ffd34d, 0 0 18px rgba(255, 200, 60, .8), 0 4px 0 rgba(0,0,0,.25) !important; }
+.card.golden .card-name { color: #8a5a00; }
+.duo-btn { background: linear-gradient(135deg, #ffd34d, #ff5d8f); color: #fff; box-shadow: 0 3px 0 #b8325f; }
+.cutin.duo .cutin-face { width: 120px; height: 120px; }
+.quest-panel { border-color: #a8323a; background: linear-gradient(#fffaf0, #ffe9e0); }
+
+/* ============================================================
+   Story & meta: tutorial, banners, gallery, settings
+   ============================================================ */
+.tutorial { margin-bottom: 12px; border-color: #7cc4ec; background: linear-gradient(#f4fbff, #fffaf0); }
+.tut-head { display: flex; align-items: center; gap: 8px; }
+.tut-head .btn { margin-left: auto; }
+.tutorial ul { list-style: none; padding: 0; margin: 6px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 2px 12px; font-size: .84rem; }
+.tutorial li.done { color: var(--muted); text-decoration: line-through; }
+.tutorial li.next { font-weight: bold; color: var(--blue); }
+.story-banner { background: #fff; border: 2px solid #ffc2d6; border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; font-size: .9rem; }
+.story-banner .btn { margin-left: 6px; }
+.gallery { margin-bottom: 18px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.memory { display: flex; align-items: center; gap: 8px; text-align: left; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 6px; font-weight: bold; font-size: .85rem; }
+.memory small { display: block; font-weight: normal; color: var(--muted); }
+.mem-face { width: 46px; height: 46px; border-radius: 50%; overflow: hidden; flex: 0 0 auto; background: #f3e9cf; }
+label.radio { display: block; padding: 6px 0; }
+label.radio small { display: block; margin-left: 22px; }
+label.slider { display: flex; flex-direction: column; gap: 4px; font-weight: bold; font-size: .9rem; margin: 8px 0; }
+label.slider select { font: inherit; padding: 4px; border-radius: 8px; }
+label.btn input[type=file] { display: none; }
+
+/* Colour-blind friendly cards */
+body.cb .card.attack { border-color: #e07b00; background: linear-gradient(170deg, #fff6e6, #ffd9a8); }
+body.cb .card.defend { border-color: #1f5fbf; background: linear-gradient(170deg, #eef4ff, #c5d9ff); }
+body.cb .card.skill { border-color: #8a3fbf; background: linear-gradient(170deg, #f8efff, #e2c8f7); }
+body.cb .card::before { position: absolute; top: 4px; right: 6px; font-size: .7rem; font-weight: 900; }
+body.cb .card.attack::before { content: '⚔ ATK'; color: #a65a00; }
+body.cb .card.defend::before { content: '🛡 DEF'; color: #1f5fbf; }
+body.cb .card.skill::before { content: '✨ SKL'; color: #6b2f99; }
+body.cb .bar.boss-hp .fill { background: repeating-linear-gradient(45deg, #e07b00 0 6px, #f59a2a 6px 12px); }
+
+/* Reduced motion */
+body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation: none !important; transition: none !important; }
+body.reduce-motion .screen-flash, body.reduce-motion .impact-flash { display: none; }

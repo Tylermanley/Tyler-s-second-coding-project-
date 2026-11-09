@@ -3,6 +3,7 @@
 // ============================================================
 
 const PUZZLE_ENERGY = 3;
+const PUZZLE_RUNNERS = { hidden: (...a) => runHidden(...a), memory: (...a) => runMemory(...a), slider: (...a) => runSlider(...a), sequence: (...a) => runSequence(...a), chess: (...a) => runChess(...a), recall: (...a) => runRecall(...a), banquet: (...a) => runBanquet(...a) };
 let P = null; // active puzzle session
 
 function shuffle(arr) {
@@ -60,8 +61,7 @@ function openPuzzle(eraId, puzzleId) {
     saveGame();
     renderHeader();
     P = { era, puzzle, timer: null, timeouts: [], diff: eraIndex(era.id) };
-    const runners = { hidden: runHidden, memory: runMemory, slider: runSlider, sequence: runSequence, chess: runChess, recall: runRecall, banquet: runBanquet };
-    runners[puzzle.type]();
+    PUZZLE_RUNNERS[puzzle.type]();
   };
 }
 
@@ -72,9 +72,10 @@ const replayXp = era => 12 + 6 * eraIndex(era.id);
 
 function finishPuzzle(success, detail) {
   stopPuzzleTimers();
+  sfx(success ? 'win' : 'lose');
+  if (P.puzzle.daily) return finishDaily(success, detail);
   const { era, puzzle } = P;
   let body;
-  sfx(success ? 'win' : 'lose');
   if (success) {
     S.stats.puzzleTypes[puzzle.type] = (S.stats.puzzleTypes[puzzle.type] || 0) + 1;
     const first = !S.puzzles[puzzle.id];

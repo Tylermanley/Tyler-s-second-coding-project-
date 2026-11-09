@@ -10,7 +10,7 @@ const CARDS = {
   guard:    { name: 'Guard',            art: '🛡️', cost: 1, block: 5 },
   strike:   { name: 'Temporal Strike',  art: '⚡', cost: 2, dmg: 1.8, pierce: true, shieldBreak: true, rarity: 'rare' },
   // Puzzle rewards — Ancient Egypt
-  swarm:    { name: 'Scarab Swarm',     art: '🪲', cost: 1, dmg: 0.45, hits: 3 },
+  swarm:    { name: 'Scarab Swarm',     art: '🪲', cost: 1, dmg: 0.45, hits: 3, chain: true },
   sands:    { name: 'Sands of Time',    art: '⏳', cost: 1, block: 6, draw: 1 },
   javelin:  { name: 'Sunfire Javelin',  art: '☀️', cost: 2, dmg: 1.6, burn: 3 },
   // Classical Greece
@@ -26,11 +26,11 @@ const CARDS = {
   lantern:  { name: 'Lantern Ward',     art: '🏮', cost: 1, block: 4, weak: 2 },
   iai:      { name: 'Iaijutsu',         art: '⚔️', cost: 3, dmg: 3.2, pierce: true, rarity: 'rare' },
   // Renaissance
-  gambit:   { name: 'Clockwork Gambit', art: '⚙️', cost: 1, dmg: 0.7, hits: 2, draw: 1 },
+  gambit:   { name: 'Clockwork Gambit', art: '⚙️', cost: 1, dmg: 0.7, hits: 2, draw: 1, chain: true },
   glider:   { name: 'Flying Machine',   art: '🪁', cost: 2, dmg: 1.0, block: 8 },
   master:   { name: 'Masterstroke',     art: '🎨', cost: 3, dmg: 2.2, vuln: 2, weak: 2, rarity: 'rare' },
   // Viking Scandinavia
-  qgambit:  { name: 'Queen\'s Gambit',  art: '♛', cost: 1, dmg: 0.8, draw: 1 },
+  qgambit:  { name: 'Queen\'s Gambit',  art: '♛', cost: 1, dmg: 0.8, draw: 1, chain: true },
   feast:    { name: 'Mead Feast',       art: '🍖', cost: 1, heal: 0.1, block: 5 },
   axe:      { name: 'Bearded Axe',      art: '🪓', cost: 2, dmg: 2.0 },
   // Tang Dynasty China
@@ -51,7 +51,7 @@ const CARDS = {
   serpent:  { name: 'Serpent\'s Venom', art: '🐍', cost: 1, dmg: 0.8, burn: 4, rarity: 'legendary' },
   gilgamesh:{ name: 'Gilgamesh\'s Might', art: '💪', cost: 3, dmg: 2.6, block: 8, rarity: 'legendary' },
   ra:       { name: 'Wrath of Ra',      art: '🌞', cost: 3, dmg: 3.0, burn: 3, rarity: 'legendary' },
-  fury:     { name: 'Minotaur\'s Fury', art: '🐂', cost: 2, dmg: 1.1, hits: 2, vuln: 1, rarity: 'legendary' },
+  fury:     { name: 'Minotaur\'s Fury', art: '🐂', cost: 2, dmg: 1.1, hits: 2, vuln: 1, chain: true, rarity: 'legendary' },
   bulwark:  { name: 'Dragonscale Bulwark', art: '🐲', cost: 2, block: 12, blockDef: 2, rarity: 'legendary' },
   oniwrath: { name: 'Oni\'s Wrath',     art: '👺', cost: 1, dmg: 1.9, exhaust: true, rarity: 'legendary' },
   overclock:{ name: 'Overclock',        art: '🔧', cost: 0, cp: 2, exhaust: true, rarity: 'legendary' },
@@ -65,6 +65,12 @@ const CARDS = {
   rewind:   { name: 'Rewind',           art: '⏪', cost: 2, heal: 0.3, cleanse: true, exhaust: true, rarity: 'rare' },
   freeze:   { name: 'Freeze Time',      art: '❄️', cost: 3, freeze: true, exhaust: true, rarity: 'rare' },
   anchor:   { name: 'Anchor Drop',      art: '⚓', cost: 2, dmg: 1.3, block: 6, rarity: 'rare' },
+  // Chain combo cards (Rift rewards & Peter's exchange)
+  flurry:   { name: 'Flurry',           art: '🌀', cost: 1, dmg: 0.6, chain: true },
+  followup: { name: 'Follow-Through',   art: '💫', cost: 1, dmg: 0.9, chain: true, draw: 1, rarity: 'rare' },
+  crescendo:{ name: 'Crescendo',        art: '🎼', cost: 2, dmg: 1.4, chain: true, vuln: 1, rarity: 'rare' },
+  revenge:  { name: 'Black Gull\'s Revenge', art: '🏴‍☠️', cost: 2, dmg: 1.2, hits: 2, burn: 2, chain: true, rarity: 'legendary' },
+  frostnote:{ name: 'Frost Footnote',   art: '📘', cost: 0, draw: 1, weak: 1 },
   // Romance
   promise:  { name: 'Lovers\' Promise', art: '💞', cost: 1, heal: 0.15, block: 8, rarity: 'legendary' },
 };
@@ -186,6 +192,7 @@ function cardDesc(c, st) {
   if (c.weak) parts.push(`Weaken <b>${c.weak}</b>.`);
   if (c.vuln) parts.push(`Expose <b>${c.vuln}</b>.`);
   if (c.freeze) parts.push('Boss loses its next action.');
+  if (c.chain) parts.push('<b>Chain:</b> +50% if you already attacked this turn.');
   if (c.exhaust) parts.push('<i>Once per battle.</i>');
   return parts.join(' ');
 }
@@ -195,10 +202,11 @@ function upgradeLevel(id) { return (S && S.upgrades && S.upgrades[id]) || 0; }
 function canUpgrade(id) { const c = CARDS[id]; return !!(c.dmg || c.block || c.heal); }
 function effCard(id) {
   const base = CARDS[id];
-  const lv = upgradeLevel(id);
+  const gold = !!(S && S.golden && S.golden[id]);
+  const lv = upgradeLevel(id) + (gold ? 1 : 0);
   if (!lv) return base;
   const m = 1 + 0.25 * lv;
-  const c = Object.assign({}, base, { name: base.name + '+'.repeat(lv) });
+  const c = Object.assign({}, base, { name: (gold ? '✦ ' : '') + base.name + '+'.repeat(upgradeLevel(id)) });
   if (c.dmg) c.dmg = base.dmg * m;
   if (c.block) c.block = Math.round(base.block * m);
   if (c.heal) c.heal = base.heal * m;
@@ -211,7 +219,7 @@ function cardHTML(id, opts = {}) {
   const type = cardType(c);
   const attrs = opts.k !== undefined ? `data-k="${opts.k}"` : `data-card="${id}"`;
   const tag = opts.button ? 'button' : 'div';
-  return `<${tag} class="card ${type} ${c.rarity || 'common'} ${upgradeLevel(id) ? 'upgraded' : ''} ${opts.cls || ''}" ${attrs} ${opts.disabled ? 'disabled' : ''} ${opts.style ? `style="${opts.style}"` : ''}>
+  return `<${tag} class="card ${type} ${c.rarity || 'common'} ${upgradeLevel(id) ? 'upgraded' : ''} ${S && S.golden && S.golden[id] ? 'golden' : ''} ${opts.cls || ''}" ${attrs} ${opts.disabled ? 'disabled' : ''} ${opts.style ? `style="${opts.style}"` : ''}>
     <span class="card-cost">${c.cost}</span>
     ${opts.count !== undefined ? `<span class="card-count">×${opts.count}</span>` : ''}
     <span class="card-art">${c.art}</span>

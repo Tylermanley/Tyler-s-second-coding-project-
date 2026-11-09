@@ -32,7 +32,7 @@ const STORY = {
     L('jane', 'happy', 'The sea and I came to an arrangement, dear. That gilded beauty was MY ship before you "inherited" her, lad.'),
     L('jane', 'smirk', 'And I hear your new friend keeps a garden full of priceless relics. Retirement has been terribly dull.'),
     L('cedric', 'determined', 'Stay away from the grove, Jane. I mean it.'),
-    L('jane', 'smirk', 'Ha! The pup learned to bark. I taught him that, you know. Sleep lightly, darlings.'),
+    L('jane', 'wink', 'Ha! The pup learned to bark. I taught him that, you know. Sleep lightly, darlings.'),
   ],
   // After the Time Devourer: the heist
   heist: () => [
@@ -41,7 +41,7 @@ const STORY = {
     N(`Peter is holding the Hourglass of Eternity and ${Math.max(0, S.stolen.length - 1)} more artifacts torn from your land!`),
     L('jane', 'happy', 'And thank you for the ship, Cedric dear! She handles just like I remember.'),
     N('Down at the dock, the Gilded Gull is pulling away under a black flag!'),
-    L('cedric', 'surprised', 'My ship! Jane, you old sea witch!'),
+    L('cedric', 'angry', 'My ship! Jane, you old sea witch!'),
     L('jane', 'smirk', 'Language, boy. A pirate never retires. She just waits for the right score.'),
     L('peter', 'determined', 'The artifacts are going to Winters Manor. If you want them back, come and beg. Ta-ta!'),
     L('anna', 'determined', 'They can\'t get away with this! I traced the portal frost. Winters Manor is open in the Time Portal. Let\'s take everything back!'),

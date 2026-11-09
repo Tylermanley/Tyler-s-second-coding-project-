@@ -73,7 +73,7 @@ const COMPANIONS = {
       8: [
         L('anna', 'blush', 'Can I tell you something? I\'ve read thousands of love stories.'),
         L('anna', 'smile', 'I always skipped to the last page, just to see if they found each other in the end.'),
-        L('anna', 'happy', 'With you… I don\'t want to skip a single page.'),
+        L('anna', 'cry', 'With you… I don\'t want to skip a single page.'),
         N('💗 Anna\'s heart is full. A Chrono Locket from the Market would mean the world to her.'),
       ],
     },
@@ -123,7 +123,7 @@ const COMPANIONS = {
       ],
       mid: [
         ['happy', 'You should\'ve seen the Gull\'s figurehead blush when you walked up. Or maybe that was me. Hard to say.'],
-        ['smirk', 'I\'ve sailed every sea in seven centuries and I still can\'t predict your next move. I like that.'],
+        ['wink', 'I\'ve sailed every sea in seven centuries and I still can\'t predict your next move. I like that.'],
         ['smile', 'I had a card printed with your face on it. Strictly for, ah, inventory purposes.'],
       ],
       high: [
@@ -338,6 +338,94 @@ const COMPANIONS = {
     battleLose: 'Every market has downturns. We\'ll recover.',
     quips: ['Diversify your attacks!', 'Buy low, strike high!', 'That card was an excellent investment.', 'Keep a reserve. Always keep a reserve.', 'I\'m calculating our odds… they\'re improving!'],
   },
+  peter: {
+    name: 'Peter Winters', title: 'Reformed Scholar of the Frost Library', home: '❄️ Frost Library', icon: '❄️',
+    color: '#5f86b8', bg: 'linear-gradient(160deg,#eef5ff 0%,#a9c2e2 50%,#26365c 100%)',
+    loves: ['berry', 'blossom'], likes: ['grape', 'peach'],
+    unlock: () => !!S.bosses.winters, unlockText: 'Defeat Peter Winters at Winters Manor… perhaps he has more to say.',
+    perks: [
+      { h: 0, text: 'Card Exchange: trade 2 copies of a card for one you don\'t own yet. As support: the boss starts Weakened for 2 turns.' },
+      { h: 2, text: 'Frost Cellar: fish and eggs sell for 25% more.' },
+      { h: 3, text: 'Absolute Zero: once per battle, freeze the boss (it loses its next action) and Expose it for 2 turns.' },
+      { h: 6, text: 'Frostguard: +10 Block on your first turn when he supports you.' },
+      { h: 8, text: 'Ready for a Chrono Locket 💍. (He\'ll pretend he isn\'t.)' },
+      { h: 'partner', text: 'Partner: every third morning he leaves a card on your desk "by accident".' },
+    ],
+    meet: [
+      N('A knock at your gate. Peter Winters stands there in the rain, glasses fogged, holding a tall stack of books.'),
+      L('peter', 'sad', 'Before you say anything: yes, it\'s me. No, I haven\'t come to steal anything. Again.'),
+      L('peter', 'neutral', 'I\'ve been thinking. Lady Alice was right. History locked in a private vault is just… dust with a price tag.'),
+      L('peter', 'blush', 'So I\'ve turned the manor library into a public one. The Frost Library. Anyone may read there. Even farmers.'),
+      L('peter', 'wink', 'And I\'ve far too many duplicate battle cards. Bring me your spares and I\'ll trade you something rare. Don\'t make it weird.'),
+    ],
+    talk: {
+      low: [
+        ['smirk', 'I\'ve catalogued your mistakes from our duel. It\'s a short volume. Don\'t let that go to your head.'],
+        ['neutral', 'Did you know the Lewis Chessmen were found in a sand dune? Seventy-eight pieces. I\'ve read every paper on them. Twice.'],
+        ['angry', 'Anna still won\'t lend me books. Apparently "frost damage" is a "pattern". Hmph.'],
+      ],
+      mid: [
+        ['smile', 'I suppose you\'re… tolerable company. For a time traveller with dirt on their boots.'],
+        ['blush', 'I made you a reading list. It\'s only forty pages long. Annotated, obviously.'],
+        ['wink', 'If anyone asks, I\'m here to inspect your artifacts. Not to see you. Obviously.'],
+      ],
+      high: [
+        ['blush', 'Everyone always expected me to be perfect. You\'re the first person who seemed to like me better when I wasn\'t.'],
+        ['happy', 'The Frost Library had forty visitors this week! Forty! Children, even. One asked me to read aloud. I did voices.'],
+        ['smile', 'I\'d duel you again, you know. Not to win. Just… because it was the most fun I\'ve ever had.'],
+      ],
+      love: [
+        ['blush', 'I\'ve read a thousand love poems and they\'re all wrong. None of them mention how you laugh at my footnotes.'],
+        ['happy', 'Stay. Read with me. The fire\'s warm, and for once I don\'t want to be anywhere else.'],
+      ],
+      again: ['smirk', 'Twice in one day? People will think we\'re friends. …Tomorrow, then.'],
+    },
+    events: {
+      2: [
+        N('Peter appears at Anna\'s library with a guilty expression and a book behind his back.'),
+        L('peter', 'blush', 'I… borrowed this. Three years ago. From Anna. Without asking. Please give it back for me?'),
+        L('anna', 'surprised', '"A History of Gardens"! I\'ve been looking everywhere! …Thank you, Peter.'),
+        L('peter', 'smile', 'Don\'t mention it. Really. Ever.'),
+        N('✨ Frost Cellar unlocked: fish and eggs sell for 25% more.'),
+      ],
+      4: [
+        L('peter', 'sad', 'Growing up, every portrait in Winters Manor stared down at me. Generations of perfect, cold, collected Winters.'),
+        L('peter', 'neutral', 'Collecting history was the only thing that made my family proud. So I collected more. Even things that weren\'t mine.'),
+        L('peter', 'smile', 'You made me realise history is better shared. Thank you. I mean it… don\'t make that face.'),
+      ],
+      6: [
+        N('The Frost Library glows with lantern light. Children sit cross-legged as Peter reads aloud, doing all the voices.'),
+        L('peter', 'surprised', 'Ah! You\'re here. I was just… it\'s a reading hour. I don\'t enjoy it. At all.'),
+        L('peter', 'happy', '…Fine. I love it. Next battle, I\'ll guard you myself. Consider it a footnote of gratitude.'),
+        N('✨ Frostguard unlocked: +10 Block on your first turn when Peter supports you.'),
+      ],
+      8: [
+        L('peter', 'blush', 'I have prepared a speech. Seven pages. Let me find… no. Forget the speech.'),
+        L('peter', 'smile', 'You beat me in a duel and then you were kind to me anyway. Nobody has ever done that.'),
+        L('peter', 'cry', 'I think I\'m rather hopelessly fond of you. There. It\'s said. I\'m going to go stand in the snow now.'),
+        N('💗 Peter\'s heart is full. A Chrono Locket from the Market would leave him speechless, which is a rare thing.'),
+      ],
+    },
+    gift: {
+      love: ['blush', 'This is… actually perfect. How did you know? I\'m pressing it in my journal.'],
+      like: ['smile', 'Acceptable. Very acceptable. Thank you.'],
+      neutral: ['smirk', 'A gift? For me? …I\'ll pretend to be unimpressed. Thank you.'],
+      again: ['smirk', 'One gift a day is generous. Two would be suspicious.'],
+    },
+    propose: [
+      N('You hold out the Chrono Locket. For once, Peter Winters has absolutely nothing to say.'),
+      L('peter', 'surprised', 'That\'s… you\'re… is this a proposal? To ME?'),
+      L('peter', 'cry', 'I had a whole list of reasons why nobody would ever… and you just… ugh, my glasses are fogging up.'),
+      L('peter', 'happy', 'Yes. Yes, absolutely yes. I\'ll annotate every day of our future. In the margins. With hearts.'),
+      N('💍 You and Peter are now partners! He moves half the Frost Library into the homestead, and he gives you the card "Lovers\' Promise".'),
+    ],
+    morning: 'Morning. I may have left a card on your desk. Accidentally. Don\'t read into it.',
+    battleStart: 'Try to keep up. I\'ll handle the theory, you handle the hitting.',
+    battleWin: 'Textbook. Absolutely textbook. I\'m writing a paper on this.',
+    battleLose: 'A setback. Even the greats lost battles. I\'ve the footnotes to prove it.',
+    quips: ['Statistically, that was brilliant.', 'Watch its pattern. It\'s almost embarrassingly predictable.', 'Mind your Block, I\'m not losing you to a footnote.', 'Elegant. I approve.', 'I\'ve read about this boss. It hates being frozen.'],
+  },
+
 };
 
 const HEART_EVENTS = [2, 4, 6, 8];
@@ -346,7 +434,8 @@ let compView = 'main';
 // ---------- visual-novel dialogue ----------
 let DLG = null;
 
-function playScene(lines, onDone) {
+function playScene(lines, onDone, key) {
+  if (key && S && S.seen) { S.seen[key] = S.day; saveGame(); }
   DLG = { lines, i: -1, onDone, timer: null, who: null, full: '' };
   const el = document.getElementById('dialogue');
   el.classList.add('open');
@@ -392,12 +481,14 @@ function renderLine() {
   DLG.full = ln.text;
   let n = 0;
   const textEl = document.getElementById('dlgText');
+  const [ms, step] = TEXT_SPEEDS[S.settings.textSpeed] || TEXT_SPEEDS.normal;
+  let tick = 0;
   DLG.timer = setInterval(() => {
-    n += 2;
-    if (n % 6 === 0) voiceBlip(ln.who);
+    n += step;
+    if (++tick % 3 === 0) voiceBlip(ln.who);
     textEl.textContent = DLG.full.slice(0, n);
     if (n >= DLG.full.length) finishTyping();
-  }, 28);
+  }, ms);
 }
 
 function finishTyping() {
@@ -448,7 +539,7 @@ function floatHearts() {
 function meetCompanion(who, onDone) {
   S.rel[who].met = true;
   saveGame();
-  playScene(COMPANIONS[who].meet, () => { renderAll(); if (onDone) onDone(); });
+  playScene(COMPANIONS[who].meet, () => { renderAll(); if (onDone) onDone(); }, `meet:${who}`);
 }
 
 function talkTo(who) {
@@ -459,7 +550,7 @@ function talkTo(who) {
   if (ev) {
     S.rel[who].events.push(ev);
     saveGame();
-    return playScene(c.events[ev], () => renderAll());
+    return playScene(c.events[ev], () => renderAll(), `event:${who}:${ev}`);
   }
   if (S.daily.talked[who]) {
     const [e, t] = c.talk.again;
@@ -486,7 +577,9 @@ function openGiftPicker(who) {
         const pref = c.loves.includes(id) ? '💖 Loves' : c.likes.includes(id) ? '😊 Likes' : '';
         return `<button class="pick" onclick="giveGift('${who}','${id}')">${CROPS[id].emoji} ${CROPS[id].name} <b>×${totalOf('produce', id)}</b><small>${pref || '&nbsp;'}</small></button>`;
       }).join('')}</div>` : '<p class="muted">You have no crops to give. Harvest something from your homestead first!</p>'}
-      <p class="muted small">One gift per day. Hint: ${c.name} loves ${c.loves.map(id => CROPS[id].emoji + ' ' + CROPS[id].name).join(' and ')}.</p>
+      ${Object.keys(DISHES).filter(id => S.dishes[id] > 0).length ? `<h4>🍽️ Dishes</h4><div class="gift-grid">${Object.keys(DISHES).filter(id => S.dishes[id] > 0).map(id => `<button class="pick" onclick="giveDish('${who}','${id}')">${DISHES[id].emoji} ${DISHES[id].name} <b>×${S.dishes[id]}</b><small>${FAV_DISH[who] === id ? '💖💖 Favourite dish!' : '😊 Likes home cooking'}</small></button>`).join('')}</div>` : ''}
+      ${isBirthday(who) ? '<p class="love-txt">🎂 It\'s their birthday today! Gifts are worth double.</p>' : ''}
+      <p class="muted small">One gift per day. Favourite dish: ${DISHES[FAV_DISH[who]].emoji} ${DISHES[FAV_DISH[who]].name}. Hint: ${c.name} loves ${c.loves.map(id => CROPS[id].emoji + ' ' + CROPS[id].name).join(' and ')}.</p>
       <div class="btn-row"><button class="btn ghost" onclick="closeStage()">Cancel</button></div>
     </div>`, c.bg);
 }
@@ -497,12 +590,14 @@ function giveGift(who, cropId) {
   const level = c.loves.includes(cropId) ? 'love' : c.likes.includes(cropId) ? 'like' : 'neutral';
   let pts = { love: 30, like: 18, neutral: 10 }[level];
   if (who !== 'alice' && hearts('alice') >= 2) pts = Math.round(pts * 1.5);
+  const bday = isBirthday(who);
+  if (bday) pts *= 2;
   S.daily.gifted[who] = true;
   const gained = addAffection(who, pts);
   saveGame();
   closeStage();
   const [e, t] = c.gift[level];
-  playScene([N(`You give ${c.name} a ${CROPS[cropId].emoji} ${CROPS[cropId].name}.`), L(who, e, t)], () => { heartPopup(who, gained, pts); renderAll(); });
+  playScene([N(`You give ${c.name} a ${CROPS[cropId].emoji} ${CROPS[cropId].name}.`), L(who, e, t), ...(bday ? [L(who, 'happy', 'And you remembered my birthday! 🎂 This is the best day ever!')] : [])], () => { heartPopup(who, gained, pts); renderAll(); });
 }
 
 function canPropose(who) { return !COMPANIONS[who].mentor && !S.partner && hearts(who) >= 8 && S.locket > 0; }
@@ -514,7 +609,9 @@ function proposeTo(who) {
   addAffection(who, 20);
   grantCard('promise');
   saveGame();
-  playScene(COMPANIONS[who].propose, () => { floatHearts(); renderAll(); });
+  S.wedding = { who, day: S.day + 2, done: false };
+  saveGame();
+  playScene(COMPANIONS[who].propose, () => { floatHearts(); renderAll(); toast(`💒 The wedding is set for Day ${S.day + 2}!`, 5000); }, `propose:${who}`);
 }
 
 function setSupport(who) {
@@ -543,7 +640,7 @@ function compCard(who) {
   const met = S.rel[who].met;
   const available = !c.unlock || c.unlock();
   const expr = S.partner === who ? 'blush' : hearts(who) >= 6 ? 'happy' : CHAR_STYLE[who].defaultExpr;
-  const visit = { anna: ['library', '📚 Visit Library'], cedric: ['ship', '⚓ Board the Gull'], alice: ['salon', '🫖 Visit Salon'], quinn: ['treasury', '🏦 Royal Treasury'] }[who];
+  const visit = { anna: ['library', '📚 Visit Library'], cedric: ['ship', '⚓ Board the Gull'], alice: ['salon', '🫖 Visit Salon'], quinn: ['treasury', '🏦 Royal Treasury'], peter: ['frost', '❄️ Frost Library'] }[who];
   const unit = c.mentor ? '★' : '♥';
   return `
     <div class="comp-card ${c.mentor ? 'mentor' : ''}" style="--c:${c.color}">
@@ -576,12 +673,13 @@ function renderCompanions() {
   if (compView === 'ship') return renderShip(view);
   if (compView === 'salon') return renderSalon(view);
   if (compView === 'treasury') return renderTreasury(view);
+  if (compView === 'frost') return renderFrost(view);
   resetDailyIfNeeded();
   view.innerHTML = `
     <h2 class="view-title">💞 Companions</h2>
     <p class="muted center">Bring one companion into each boss battle as support. Talk every day, give gifts, and fight side by side to grow closer.</p>
     <h3 class="section-title">💞 Companions <small class="muted">Friends and possible romance</small></h3>
-    <div class="comp-list">${['anna', 'cedric'].map(compCard).join('')}</div>
+    <div class="comp-list">${['anna', 'cedric', 'peter'].map(compCard).join('')}</div>
     <h3 class="section-title">🎓 Mentors <small class="muted">Aristocratic patrons who guide your journey</small></h3>
     <div class="comp-list">${['alice', 'quinn'].map(compCard).join('')}</div>`;
 }
@@ -704,4 +802,63 @@ function deckAdjust(id, d) {
   if (d < 0 && (cur <= 0 || deckSize() <= DECK_MIN)) return;
   S.deck[id] = cur + d;
   saveGame(); renderAll();
+}
+
+function giveDish(who, id) {
+  const c = COMPANIONS[who];
+  if (!S.dishes[id]) return;
+  S.dishes[id]--;
+  let pts = FAV_DISH[who] === id ? 40 : 20;
+  if (who !== 'alice' && hearts('alice') >= 2) pts = Math.round(pts * 1.5);
+  const bday = isBirthday(who);
+  if (bday) pts *= 2;
+  S.daily.gifted[who] = true;
+  const gained = addAffection(who, pts);
+  saveGame();
+  closeStage();
+  const line = FAV_DISH[who] === id ? ['happy', 'My FAVOURITE! You cooked this yourself? I could cry. I might cry.'] : ['smile', 'Home cooking! Thank you, it smells wonderful.'];
+  playScene([N(`You give ${c.name} a ${DISHES[id].emoji} ${DISHES[id].name}.`), L(who, line[0], line[1]), ...(bday ? [L(who, 'happy', 'On my birthday, too! 🎂')] : [])], () => { heartPopup(who, gained, pts); renderAll(); });
+}
+
+// ---------- Peter's Frost Library: card exchange ----------
+function exchangeCard(id) {
+  if ((S.cards[id] || 0) < 2) return;
+  S.cards[id] -= 2;
+  if ((S.deck[id] || 0) > S.cards[id]) S.deck[id] = S.cards[id];
+  const pool = Object.keys(CARDS).filter(c => c !== 'promise' && !S.cards[c]);
+  const fallback = Object.keys(CARDS).filter(c => c !== 'promise' && CARDS[c].rarity);
+  const list = pool.length ? pool : fallback;
+  const got = list[Math.floor(Math.random() * list.length)];
+  grantCard(got);
+  if (deckSize() < DECK_MIN) S.deck[got] = (S.deck[got] || 0);
+  while (deckSize() < DECK_MIN) {
+    const add = Object.keys(S.cards).find(c => (S.deck[c] || 0) < S.cards[c]);
+    if (!add) break;
+    S.deck[add] = (S.deck[add] || 0) + 1;
+  }
+  sfx('success');
+  saveGame();
+  openStage(`<div class="stage-card intro" style="--era:#5f86b8">${portraitSVG('peter', 'smirk', { crop: 'head', cls: 'mini' })}
+    <h2>❄️ Exchange complete</h2><p><b>Peter:</b> "A fair trade. Well, fair-ish. In your favour, as it happens."</p>${cardHTML(got)}
+    <div class="btn-row"><button class="btn primary" onclick="closeStage()">Thanks, Peter</button></div></div>`, COMPANIONS.peter.bg);
+}
+
+function renderFrost(view) {
+  const st = stats();
+  const dupes = Object.keys(CARDS).filter(id => (S.cards[id] || 0) >= 2);
+  view.innerHTML = `
+    ${backBar('peter', S.partner === 'peter' ? 'Welcome home, darling. I\'ve alphabetised your socks. Don\'t ask.' : 'Welcome to the Frost Library. Mind the icicles, and do keep your voice down.')}
+    <section class="panel">
+      <h3>🔄 Card Exchange</h3>
+      <p class="muted small">Give Peter two copies of a card and he'll trade you one you don't own yet (or a rare card if you've collected everything).</p>
+      ${dupes.length ? `<div class="card-row">${dupes.map(id => `<div class="deck-card">${cardHTML(id, { st, count: S.cards[id] })}<button class="btn small primary" onclick="exchangeCard('${id}')">Trade 2 ➜ ❓</button></div>`).join('')}</div>` : '<p class="muted">You have no duplicate cards right now. Buy extras from Cedric, or win them at festivals.</p>'}
+    </section>
+    <section class="panel deck-panel">
+      <h3>📚 Peter's Reading Room</h3>
+      <ul class="hint-box-list">
+        <li>Chain cards (🌀 Flurry, 🪲 Scarab Swarm, ♛ Queen's Gambit…) deal +50% if you've already attacked that turn, so play a cheap attack first.</li>
+        <li>Elite rematches (⚡ in the Time Portal) turn a boss's trophy card golden: one free upgrade level, stacking with Lady Alice's Masterclass.</li>
+        <li>The Endless Rift rewards patience: resting between floors is often wiser than taking another card.</li>
+      </ul>
+    </section>`;
 }

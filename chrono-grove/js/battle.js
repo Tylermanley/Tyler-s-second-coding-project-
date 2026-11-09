@@ -11,9 +11,22 @@ let _cardK = 0;
 
 function metCompanions() { return Object.keys(COMPANIONS).filter(w => S.rel[w].met); }
 
-function openBossIntro(eraId) {
+const DIFFICULTY = { story: { hp: 0.7, atk: 0.75, label: 'Story' }, normal: { hp: 1, atk: 1, label: 'Normal' }, hard: { hp: 1.3, atk: 1.2, label: 'Hard' } };
+
+function scaledBoss(era, opts = {}) {
+  const d = DIFFICULTY[(S.settings && S.settings.difficulty) || 'normal'];
+  let hp = d.hp, atk = d.atk, def = 0;
+  if (opts.elite) { hp *= 1.6; atk *= 1.25; def = 3; }
+  if (opts.rift) { hp *= opts.rift.hpMult; atk *= opts.rift.atkMult; }
+  return Object.assign({}, era.boss, {
+    hp: Math.round(era.boss.hp * hp), atk: Math.round(era.boss.atk * atk), def: era.boss.def + def,
+    name: (opts.elite ? '⚡ Elite ' : '') + era.boss.name,
+  });
+}
+
+function openBossIntro(eraId, elite = false) {
   const era = ERA_BY_ID[eraId];
-  const boss = era.boss;
+  const boss = scaledBoss(era, { elite });
   const st = stats();
   const relic = ARTIFACTS[boss.relic];
   const beaten = S.bosses[era.id];
@@ -35,14 +48,16 @@ function openBossIntro(eraId) {
         <div class="support-pick">
           <b>Support companion</b>
           <div class="support-opts">
-            ${supports.map(w => `<button class="support-opt ${S.support === w ? 'active' : ''}" onclick="S.support='${w}';saveGame();openBossIntro('${eraId}')">
+            ${supports.map(w => `<button class="support-opt ${S.support === w ? 'active' : ''}" onclick="S.support='${w}';saveGame();openBossIntro('${eraId}',${elite})">
               <span class="sp-face">${portraitSVG(w, S.support === w ? 'happy' : CHAR_STYLE[w].defaultExpr, { crop: 'head' })}</span>
               <span>${COMPANIONS[w].name} <small>${hearts(w)}♥</small></span></button>`).join('')}
-            <button class="support-opt ${!S.support ? 'active' : ''}" onclick="S.support=null;saveGame();openBossIntro('${eraId}')"><span class="sp-face solo">🧭</span><span>Go alone</span></button>
+            <button class="support-opt ${!S.support ? 'active' : ''}" onclick="S.support=null;saveGame();openBossIntro('${eraId}',${elite})"><span class="sp-face solo">🧭</span><span>Go alone</span></button>
           </div>
         </div>` : ''}
       ${hint ? `<div class="anna-hint">${portraitSVG('anna', 'determined', { crop: 'head', cls: 'mini' })}<p><b>Anna's notes:</b> ${hint}</p></div>` : ''}
-      <p class="reward-line">${beaten ? `Rematch reward: 🪙 ${Math.round(boss.coins / 3)} · ✨ ${Math.round(boss.xp / 3)} XP` : `Reward: <b>${relic.emoji} ${relic.name}</b> + card <b>${CARDS[BOSS_CARDS[era.id]].art} ${CARDS[BOSS_CARDS[era.id]].name}</b> · 🪙 ${boss.coins} · ✨ ${boss.xp} XP`}</p>
+      ${elite ? `<p class="warn">⚡ ELITE CHALLENGE: +60% HP, +25% ATK, +3 DEF. First victory turns <b>${CARDS[BOSS_CARDS[era.id]].name}</b> into a ✦ golden card${S.elite[era.id] ? ' (already earned)' : ''}.</p>` : ''}
+      ${mealPickerHtml(eraId, elite)}
+      <p class="reward-line">${elite ? `Elite reward: ${S.elite[era.id] ? `🪙 ${Math.round(boss.coins / 3)}` : `✦ Golden card + 🪙 ${era.boss.coins}`} · ✨ ${Math.round(boss.xp / 3)} XP` : beaten ? `Rematch reward: 🪙 ${Math.round(boss.coins / 3)} · ✨ ${Math.round(boss.xp / 3)} XP` : `Reward: <b>${relic.emoji} ${relic.name}</b> + card <b>${CARDS[BOSS_CARDS[era.id]].art} ${CARDS[BOSS_CARDS[era.id]].name}</b> · 🪙 ${boss.coins} · ✨ ${boss.xp} XP`}</p>
       <p class="muted">Costs ⚡ ${BOSS_ENERGY} energy (you have ${S.energy}).</p>
       <div class="btn-row">
         <button class="btn ghost" onclick="closeStage()">Not yet</button>
@@ -51,20 +66,30 @@ function openBossIntro(eraId) {
       ${S.energy < BOSS_ENERGY ? '<p class="warn">Not enough energy. End the day on your homestead to rest.</p>' : ''}
     </div>`, era.bg);
   const btn = document.getElementById('fightBtn');
-  if (btn) btn.onclick = () => { if (spendEnergy(BOSS_ENERGY)) { saveGame(); renderHeader(); startBattle(eraId); } };
+  if (btn) btn.onclick = () => { if (spendEnergy(BOSS_ENERGY)) { saveGame(); renderHeader(); startBattle(eraId, { elite }); } };
 }
 
-function startBattle(eraId) {
+function startBattle(eraId, opts = {}) {
   const era = ERA_BY_ID[eraId];
   const st = stats();
-  const support = S.support && S.rel[S.support].met ? S.support : null;
+  const support = S.support && S.rel[S.support] && S.rel[S.support].met ? S.support : null;
+  const boss = scaledBoss(era, opts);
+  const meal = opts.rift && opts.rift.floor > 1 ? null : S.meal;
+  if (meal) S.meal = null;
+  let maxHp = st.maxHp, atk = st.atk;
+  if (meal === 'pie') maxHp = Math.round(maxHp * 1.2);
+  if (meal === 'omelette') maxHp += 10;
+  if (meal === 'sorbet') atk = Math.round(atk * 1.15);
+  if (meal === 'sushi') { atk = Math.round(atk * 1.1); maxHp = Math.round(maxHp * 1.1); }
+  const startHp = opts.rift && opts.rift.hp ? Math.min(opts.rift.hp, maxHp) : maxHp;
+  const deck = opts.rift ? opts.rift.deck : deckList();
   B = {
-    era, boss: era.boss,
-    hp: era.boss.hp, maxHp: era.boss.hp,
+    era, boss, elite: !!opts.elite, rift: opts.rift || null, meal, mealUsed: false, duoUsed: false, attacksThisTurn: 0,
+    hp: boss.hp, maxHp: boss.hp,
     atkMod: 1, shield: 0, frozen: false, burn: 0, burnDmg: 0, weak: 0, vuln: 0,
     phase: 1, idx: 0, intent: null,
-    hero: { hp: st.maxHp, maxHp: st.maxHp, atk: st.atk, def: st.def, cp: 0, block: 0, burn: 0, burnDmg: 0, weak: 0 },
-    drawPile: shuffle(deckList()).map(id => ({ id, k: ++_cardK })), hand: [], discard: [], exhausted: [],
+    hero: { hp: startHp, maxHp, atk, def: st.def, cp: 0, block: 0, burn: 0, burnDmg: 0, weak: 0 },
+    drawPile: shuffle(deck).map(id => ({ id, k: ++_cardK })), hand: [], discard: [], exhausted: [],
     support, supportUsed: false, stolen: [],
     bubble: support ? ((era.boss.supportLines && era.boss.supportLines[support]) || COMPANIONS[support].battleStart) : '',
     log: [], busy: false, over: false, turn: 1, menu: null, heroExpr: 'determined',
@@ -73,6 +98,8 @@ function startBattle(eraId) {
   setMusic('battle');
   addLog(`⚔️ ${B.boss.name} appears!`, 'sys');
   if (support) addLog(`🤝 ${COMPANIONS[support].name} fights by your side.`, 'sys');
+  if (meal) addLog(`🍽️ You ate your packed ${DISHES[meal].name}: ${DISHES[meal].effect}`, 'sys');
+  if (support === 'peter') { B.weak = 2; addLog('📚 Peter points out the boss\'s weak spots: it starts Weakened for 2 turns.', 'ally'); }
   startPlayerTurn();
 }
 
@@ -107,8 +134,11 @@ function startPlayerTurn() {
   const h = B.hero;
   h.block = 0;
   if (supportPerk('anna', 6)) { h.block = 4; }
-  h.cp = BASE_CP + (B.turn === 1 && supportPerk('cedric', 6) ? 1 : 0);
-  drawCards(HAND_SIZE + (B.support === 'cedric' ? 1 : 0));
+  if (B.meal === 'stew') h.block += 3;
+  if (B.turn === 1 && supportPerk('peter', 6)) h.block += 10;
+  B.attacksThisTurn = 0;
+  h.cp = BASE_CP + (B.turn === 1 && supportPerk('cedric', 6) ? 1 : 0) + (B.turn === 1 && B.meal === 'peachtea' ? 1 : 0);
+  drawCards(HAND_SIZE + (B.support === 'cedric' ? 1 : 0) + (B.turn === 1 && B.meal === 'tart' ? 1 : 0));
   if (B.support === 'anna') B.bubble = annaHint();
   else if (B.support && COMPANIONS[B.support].quips && B.turn > 1) { const q = COMPANIONS[B.support].quips; B.bubble = q[Math.floor(Math.random() * q.length)]; }
   B.heroExpr = h.hp < h.maxHp * 0.3 ? 'sad' : 'determined';
@@ -191,6 +221,12 @@ function hitHero(dmg) {
   floatNum('heroBox', taken ? `-${taken}` : 'Blocked', taken ? 'dmg' : 'block');
   sfx(taken ? 'hit' : 'block');
   if (taken) { shake('heroBox'); B.heroExpr = 'surprised'; }
+  if (B.meal === 'cornbread' && !B.mealUsed && h.hp > 0 && h.hp < h.maxHp / 2) {
+    B.mealUsed = true;
+    const amt = Math.min(h.maxHp - h.hp, Math.round(h.maxHp * 0.25));
+    h.hp += amt;
+    addLog(`🍞 Your Sun Maize Cornbread kicks in: +${amt} HP!`, 'ally');
+  }
   return { taken, blocked };
 }
 
@@ -232,8 +268,10 @@ function playCard(k) {
       if (B.support === 'anna') B.bubble = 'Ow! That\'s why I said no attacks during the stance! It\'s off-balance now, so go for it!';
     } else {
       let dealt = 0, absorbed = 0, crit = false;
+      const chained = c.chain && B.attacksThisTurn > 0;
+      if (chained) addLog('⛓️ Chain! +50% damage.', 'you');
       for (let n = 0; n < hits; n++) {
-        const d = heroDamage(c.dmg, c.pierce);
+        const d = heroDamage(c.dmg * (chained ? 1.5 : 1), c.pierce);
         crit = crit || d.crit;
         const r = hitBoss(d.dmg, c.shieldBreak ? 2 : 1);
         dealt += r.dealt; absorbed += r.absorbed;
@@ -241,6 +279,7 @@ function playCard(k) {
       addLog(`${c.art} ${crit ? 'Critical! ' : ''}${c.name} deals ${dealt} damage${hits > 1 ? ` in ${hits} hits` : ''}${absorbed ? ` (${absorbed} hit the shield)` : ''}.`, 'you');
     }
   }
+  if (c.dmg) B.attacksThisTurn++;
   if (c.block) {
     const amt = blockAmount(c, h.def);
     h.block += amt;
@@ -289,6 +328,12 @@ function useSupport() {
     if (B.atkMod > 1) { lost.push('all its power-ups'); B.atkMod = 1; }
     addLog(`👑 Lady Alice issues a Royal Decree! ${B.boss.name} must yield its next action${lost.length ? ` and loses ${lost.join(' and ')}` : ''}!`, 'ally');
     B.bubble = 'By order of the Duchess of Bluewater: kneel!';
+  } else if (B.support === 'peter') {
+    cutIn('peter', 'Absolute Zero!', '❄️');
+    B.frozen = true;
+    B.vuln = Math.max(B.vuln, 2);
+    addLog(`❄️ Peter casts Absolute Zero! ${B.boss.name} is frozen solid and Exposed for 2 turns!`, 'ally');
+    B.bubble = 'Do keep up. Strike while it\'s frozen, it\'s simple thermodynamics.';
   } else if (B.support === 'quinn') {
     if (S.coins < 100) { B.supportUsed = false; return; }
     S.coins -= 100;
@@ -433,6 +478,7 @@ function endBattle(won) {
   B.over = true;
   B.busy = true;
   sfx(won ? 'win' : 'lose');
+  if (B.rift) return riftBattleOver(won);
   const era = B.era, boss = B.boss, support = B.support;
   let body;
   let heartsGained = 0;
@@ -453,6 +499,14 @@ function endBattle(won) {
       relicHtml = `<div class="artifact-reveal relic"><div class="big-emoji">${a.emoji}</div><h3>${a.name}</h3><p>${a.desc}</p><p class="bonus">${bonusText(a.bonus)}</p></div>
         <div class="card-gift">${portraitSVG('cedric', 'happy', { crop: 'head', cls: 'mini' })}<div><p><b>Cedric:</b> "I forged a trophy card from that beast's power!"</p>${cardHTML(BOSS_CARDS[era.id])}</div></div>`;
     }
+    let eliteHtml = '';
+    if (B.elite && !S.elite[era.id]) {
+      S.elite[era.id] = true;
+      const cid = BOSS_CARDS[era.id];
+      S.golden[cid] = true;
+      S.coins += era.boss.coins;
+      eliteHtml = `<div class="card-gift">${portraitSVG('cedric', 'happy', { crop: 'head', cls: 'mini' })}<div><p><b>Cedric:</b> "An ELITE victory! I've gilded your trophy card. It's stronger than ever!" (🪙${era.boss.coins} bounty)</p>${cardHTML(cid)}</div></div>`;
+    }
     const nextEra = ERAS[eraIndex(era.id) + 1];
     const unlocks = [];
     if (first && nextEra && eraUnlocked(nextEra)) unlocks.push(`🌀 New era unlocked: <b>${nextEra.name}</b>`);
@@ -463,7 +517,7 @@ function endBattle(won) {
       <h2>🏆 Victory!</h2>
       <p>${boss.name} has been defeated in ${B.turn} turns.</p>
       ${support ? `<div class="anna-hint">${portraitSVG(support, 'happy', { crop: 'head', cls: 'mini' })}<p><b>${COMPANIONS[support].name}:</b> ${COMPANIONS[support].battleWin} <span class="love-txt">💗 +15${heartsGained ? ` (${hearts(support)}♥!)` : ''}</span></p></div>` : ''}
-      ${relicHtml}
+      ${relicHtml}${eliteHtml}
       <p class="reward-line">🪙 +${coins} &nbsp; ✨ +${xp} XP ${levels ? `&nbsp; <b>⬆️ Level ${S.hero.level}!</b>` : ''}</p>
       ${unlocks.map(u => `<p>${u}</p>`).join('')}
       ${era.id === 'end' && first ? '<p class="warn">⏳ The Devourer is gone and history is safe… but frost is spreading across your homestead. Something is wrong!</p>' : ''}
@@ -495,7 +549,8 @@ function endBattle(won) {
 
 function retreatBattle() {
   if (!B || B.over) return;
-  if (!confirm('Retreat? The energy spent on this trip will be lost.')) return;
+  if (!confirm(B.rift ? 'Leave the Rift? Your run will end here (you keep the coins earned).' : 'Retreat? The energy spent on this trip will be lost.')) return;
+  if (B.rift) { B.over = true; return riftBattleOver(false, true); }
   B = null;
   closeStage();
   setMusic(backgroundMusic());
@@ -542,16 +597,17 @@ function renderBattle() {
   if (B.frozen) bossChips.push('<span class="chip weak">❄️ Frozen</span>');
   if (B.phase === 2) bossChips.push('<span class="chip burn">Phase 2</span>');
   if (B.stolen.length) bossChips.push(`<span class="chip vuln">🫳 ${B.stolen.length} card${B.stolen.length > 1 ? 's' : ''} stolen</span>`);
-  const bossExpr = B.frozen ? 'surprised' : B.hp < B.maxHp * 0.2 ? 'sad' : B.phase === 2 ? 'determined' : 'smirk';
+  const bossExpr = B.frozen ? 'surprised' : B.hp < B.maxHp * 0.2 ? 'sad' : B.phase === 2 ? 'angry' : 'smirk';
   const dis = B.busy || B.over;
   const intent = B.frozen ? '❄️ Frozen — it will lose this action' : intentText(B.intent);
   const danger = !B.frozen && (B.intent.heavy || ['stance', 'charge', 'steal', 'plunder'].includes(B.intent.kind));
   const sup = B.support ? COMPANIONS[B.support] : null;
   const shipGone = B.support === 'cedric' && S.shipStolen;
   const canAbility = sup && hearts(B.support) >= 3 && !shipGone;
-  const abilityName = { anna: '💗 Remedy', cedric: '💥 Broadside', alice: '👑 Royal Decree', quinn: '💰 Mercenaries (🪙100)' }[B.support] || '';
+  const abilityName = { anna: '💗 Remedy', cedric: '💥 Broadside', alice: '👑 Royal Decree', quinn: '💰 Mercenaries (🪙100)', peter: '❄️ Absolute Zero' }[B.support] || '';
+  const canDuo = sup && hearts(B.support) >= 8;
   const supExpr = B.support === 'anna' ? (danger ? 'surprised' : B.hero.hp < B.hero.maxHp * 0.35 ? 'sad' : 'determined')
-    : B.support === 'cedric' ? (danger ? 'determined' : 'smirk') : (danger ? 'determined' : 'smile');
+    : B.support === 'cedric' || B.support === 'peter' ? (danger ? 'determined' : 'smirk') : (danger ? 'determined' : 'smile');
   const quinnBroke = B.support === 'quinn' && S.coins < 100;
   const fan = B.hand.length;
 
@@ -577,6 +633,7 @@ function renderBattle() {
         <div class="ally-box">
           <div class="ally-portrait">${portraitSVG(B.support, supExpr, { crop: 'bust', talking: false })}</div>
           <div class="ally-bubble"><b>${sup.name}</b><span>${B.bubble}</span></div>
+          ${canDuo ? `<button class="btn small duo-btn" ${dis || B.duoUsed ? 'disabled' : ''} onclick="useDuo()">${B.duoUsed ? 'Duo used' : '✨ Duo Finisher'}</button>` : ''}
           ${canAbility ? `<button class="btn small ally-btn" ${dis || B.supportUsed || quinnBroke ? 'disabled' : ''} onclick="useSupport()">${B.supportUsed ? 'Used' : quinnBroke ? 'Need 🪙100' : abilityName}</button>` : shipGone ? '<small class="muted">⚓ No ship, no cannons!</small>' : `<small class="muted">Reach 3${sup.mentor ? '★' : '♥'} to unlock ${abilityName}</small>`}
         </div>` : ''}
       </div>
@@ -659,4 +716,38 @@ function cutIn(who, text, icon) {
     <div class="cutin-text"><span class="cutin-icon">${icon || ''}</span>${text}</div></div>`;
   document.body.appendChild(f);
   setTimeout(() => f.remove(), 1150);
+}
+
+// ---------- Duo Finisher (8♥/★ with your support) ----------
+const DUO = {
+  anna:   { name: 'Library of Light', icon: '📚', fx: () => { const a = healHero(Math.round(B.hero.maxHp * 0.2)); return `and Anna's light heals ${a} HP`; } },
+  cedric: { name: 'Captain\'s Gambit', icon: '⚓', fx: () => { B.hero.cp += 2; return 'and Cedric deals you +2 CP'; } },
+  alice:  { name: 'Waltz of Blades', icon: '👑', fx: () => { B.frozen = true; return 'and the boss is left reeling (loses its next action)'; } },
+  quinn:  { name: 'Golden Ledger', icon: '💰', fx: () => { S.coins += 100; return 'and Quinn pockets you 🪙100 in "damages"'; } },
+  peter:  { name: 'Frost & Footnotes', icon: '❄️', fx: () => { B.vuln = Math.max(B.vuln, 3); return 'and the boss is Exposed for 3 turns'; } },
+};
+
+function useDuo() {
+  if (!B || B.busy || B.over || B.duoUsed || !B.support || hearts(B.support) < 8) return;
+  B.duoUsed = true;
+  const d = DUO[B.support];
+  duoCutIn(B.support, d.name, d.icon);
+  const dmg = heroDamage(4, true);
+  const r = hitBoss(dmg.dmg, 2);
+  const extra = d.fx();
+  addLog(`✨ DUO FINISHER: ${d.name}! ${r.dealt} damage, ${extra}!`, 'ally');
+  B.bubble = 'Together!';
+  checkBattleEnd() || renderBattle();
+}
+
+function duoCutIn(who, text, icon) {
+  sfx('cutin');
+  const f = document.createElement('div');
+  f.className = `cutin cutin-${who} duo`;
+  f.innerHTML = `<div class="cutin-band"><div class="cutin-lines"></div>
+    <div class="cutin-face">${portraitSVG('hero', 'determined', { crop: 'head' })}</div>
+    <div class="cutin-face">${portraitSVG(who, 'determined', { crop: 'head' })}</div>
+    <div class="cutin-text"><span class="cutin-icon">${icon}</span>${text}</div></div>`;
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1300);
 }

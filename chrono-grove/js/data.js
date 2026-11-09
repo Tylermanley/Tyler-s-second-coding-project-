@@ -74,6 +74,9 @@ const ARTIFACTS = {
   medal:     { name: 'Regatta Gold Medal',   emoji: '🏅', era: 'festival',    bonus: { atk: 3 },             desc: 'First place at the Gilded Gull Regatta!' },
   rosette:   { name: 'Harvest Gala Rosette', emoji: '🏵️', era: 'festival',    bonus: { hp: 20, gold: 10 },   desc: 'Lady Alice\'s blue-ribbon prize for the finest crop in the land.' },
   candelabra:{ name: 'Starlight Candelabra', emoji: '🕯️', era: 'festival',    bonus: { def: 3, energy: 3 },  desc: 'Won at the Royal Treasury Auction, outbidding Peter Winters himself.' },
+  goldenegg: { name: 'Golden Chrono Egg',    emoji: '🥚', era: 'festival',    bonus: { gold: 25, hp: 10 },   desc: 'Laid by one of your chickens. It ticks faintly, like a tiny clock.' },
+  weddingbell:{ name: 'Wedding Bell',        emoji: '💒', era: 'festival',    bonus: { hp: 30, gold: 20 },   desc: 'Rung on the happiest day in Chrono Grove\'s history.' },
+  spyglass:  { name: 'Jane\'s Spyglass',     emoji: '🔭', era: 'festival',    bonus: { energy: 4, def: 2 },  desc: 'Recovered from Jane\'s lost hoard. It always points toward adventure.' },
   // Final bosses
   frostcrown: { name: 'Winters Frost Crown',  emoji: '👑', era: 'winters',   bonus: { atk: 4, def: 4, energy: 5 }, desc: 'Peter\'s heirloom circlet, rimed with permanent frost. He dropped it while fleeing.', relic: true },
   blackflag:  { name: 'Jane\'s Black Flag',   emoji: '🏴‍☠️', era: 'jane',    bonus: { atk: 6, gold: 40, sprinkler: 1 }, desc: 'The old Pirate Queen\'s colours, given freely in respect. Storm clouds water your fields.', relic: true },

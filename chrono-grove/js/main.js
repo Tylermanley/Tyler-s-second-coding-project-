@@ -69,7 +69,9 @@ function renderAll() {
   if (currentTab === 'market') renderMarket();
   if (currentTab === 'help') renderHelp();
   if (currentTab === 'town') renderCompanions();
+  if (currentTab === 'settings') renderSettings();
   checkAchievements();
+  checkTutorial();
 }
 
 // ---------- Time Portal ----------
@@ -79,6 +81,7 @@ function renderPortal() {
     <h2 class="view-title">🌀 The Time Portal</h2>
     <p class="muted center">Solve puzzles to recover artifacts. Recover all three in an era to awaken its boss. Defeat the boss to open the next era.</p>
     ${heistBanner()}
+    ${Object.keys(S.bosses).length ? `<div class="mode-row">${dailyCardHtml()}${riftCardHtml()}</div>` : `<div class="mode-row">${dailyCardHtml()}</div>`}
     <div class="era-list">
       ${ERAS.map(era => {
         const open = eraUnlocked(era);
@@ -109,6 +112,8 @@ function renderPortal() {
                 <span class="p-text"><b>${bossOpen ? era.boss.name : 'Boss sealed'}</b><small>${bossOpen ? `Boss battle · ⚡${BOSS_ENERGY}` : `Recover all ${era.puzzles.length} artifacts first`}</small></span>
                 <span class="p-art">${done ? ARTIFACTS[era.boss.relic].emoji : '⚔️'}</span>
               </button>
+              ${done && !era.final ? `<button class="puzzle-btn elite-btn ${S.elite[era.id] ? 'cleared' : ''}" onclick="openBossIntro('${era.id}', true)">
+                <span class="p-icon">⚡</span><span class="p-text"><b>Elite ${era.boss.name}</b><small>${S.elite[era.id] ? 'Golden card earned ✦ · rematch any time' : 'Much harder rematch · win a ✦ golden card'}</small></span><span class="p-art">${S.elite[era.id] ? '✦' : '⚡'}</span></button>` : ''}
             </div>
           </div>`;
       }).join('')}
@@ -123,6 +128,7 @@ function renderMuseum() {
   view.innerHTML = `
     <h2 class="view-title">🏛️ Museum of the Ages</h2>
     ${journalHtml()}
+    ${galleryHtml()}
     <p class="muted center">Collected <b>${S.artifacts.length}</b> of <b>${total}</b> artifacts.</p>
     <div class="progress"><div style="width:${(S.artifacts.length / total) * 100}%"></div></div>
     ${ERAS.map(era => {
@@ -199,6 +205,14 @@ function renderMarket() {
           <button class="btn small love" ${S.coins < price(LOCKET.cost) || S.partner ? 'disabled' : ''} onclick="buyLocket()">🪙${price(LOCKET.cost)}</button></div>
         ${S.partner ? `<p class="muted small">💍 You and ${COMPANIONS[S.partner].name} are partners.</p>` : ''}
       </section>` : ''}
+      ${requestBoardHtml()}
+      ${carpenterHtml()}
+      <section class="panel">
+        <h3>🐟 Fishmonger</h3>
+        <p class="small">Fish: ${Object.keys(S.fish).filter(id => S.fish[id] > 0).map(id => `${FISH[id].emoji}×${S.fish[id]}`).join(' ') || 'none'} · Eggs: 🥚×${S.pantry.egg || 0}</p>
+        <p class="muted small">Keep some for cooking! ${mentorMet('peter') && hearts('peter') >= 2 ? '❄️ Peter\'s Frost Cellar: +25% value.' : ''}</p>
+        <button class="btn small primary" ${fishCount() + (S.pantry.egg || 0) ? '' : 'disabled'} onclick="sellFish()">Sell all fish &amp; eggs</button>
+      </section>
       <section class="panel">
         <h3>⚒️ Blacksmith's Forge</h3>
         <div class="shop-row"><span>🗡️ <b>Hone Chrono Blade</b><small>Permanent +2 ATK · level ${S.hero.forgeAtk}</small></span>
@@ -264,6 +278,10 @@ function renderHelp() {
     <div class="help panel">
       <h3>📅 Seasons &amp; Festivals</h3>
       <p>Each season lasts ${SEASON_LEN} days: 🌸 Spring, ☀️ Summer, 🍂 Autumn, ❄️ Winter. Crops can only be <b>planted</b> in their seasons (shown by the icons in your seed pouch and the Market), but crops already in the ground keep growing. Winter brings snow instead of rain. On day ${7} of every season there's a festival: Anna's <b>Blossom & Book Fair</b>, Cedric's <b>Regatta</b>, Lady Alice's <b>Harvest Gala</b> and Minister Quinn's <b>Treasury Auction</b>.</p>
+      <h3>🏡 Homestead Life</h3>
+      <p>Cook dishes in the 🍳 <b>Kitchen</b> from crops, eggs and fish. Pack one before a boss fight for a buff, or give a companion their favourite dish. Go 🎣 <b>fishing</b> at the dock to fill your fish collection. The Market's <b>Carpenter</b> builds a greenhouse (any crop, any season), a chicken coop, land expansions and decorations. Display every artifact from one era together for a 🏆 <b>set bonus</b>. Villagers post requests on the 📋 <b>Request Board</b>.</p>
+      <h3>⚡ Challenges</h3>
+      <p><b>⛓️ Chain</b> cards deal +50% if you've already attacked that turn. Beat a boss, then try its <b>⚡ Elite</b> rematch to turn its trophy card ✦ golden. At 8♥/★ your support companion unlocks a <b>✨ Duo Finisher</b>. Try the <b>📅 Daily Challenge</b> (the same puzzle for everyone each day) and the <b>🌀 Endless Rift</b>, a tower of bosses where your HP carries over and you pick new cards as you climb. Difficulty, text speed, colour-blind mode, reduced motion and save slots are all in ⚙️ Settings.</p>
       <h3>📔 Journal &amp; Sound</h3>
       <p>Anna records your achievements in her Adventure Journal (in the Museum). Each one pays coins, and many unlock a title you can wear. Use 🔊 and 🎵 in the top bar to toggle sound effects and music.</p>
       <h3>🌱 Your Homestead</h3>
@@ -328,6 +346,10 @@ function beginJourney() {
 // ---------- boot ----------
 window.addEventListener('DOMContentLoaded', () => {
   S = loadGame();
+  syncPlotSize();
+  applySettings();
+  if (!S.requests.length) refreshRequests();
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (S.day === 1 && !S.introSeen) applyMorningWater();
   document.querySelectorAll('.tab').forEach(t => t.onclick = () => showTab(t.dataset.tab));
   showTab('farm');

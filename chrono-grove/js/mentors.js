@@ -6,6 +6,7 @@ const VENTURES = {
   spice:    { name: 'Spice Route Caravan', icon: '🐫', days: 2, ret: 0.3, odds: 0.9, h: 1, desc: 'A short, safe trip for pepper and saffron.' },
   silk:     { name: 'Silk Road Convoy',    icon: '🧵', days: 4, ret: 0.8, odds: 0.75, h: 3, desc: 'Fine silks from the far east. Bandits are a risk.' },
   treasure: { name: 'Treasure Expedition', icon: '🗺️', days: 6, ret: 2.0, odds: 0.5, h: 5, desc: 'Quinn\'s mysterious map. Fortune… or nothing.' },
+  janehoard:{ name: 'Jane\'s Lost Hoard',    icon: '🏴‍☠️', days: 3, ret: 1.0, odds: 1, h: 0, hidden: true, desc: 'Both halves of the map, together at last.' },
 };
 const MAX_VENTURES = 3;
 
@@ -32,6 +33,7 @@ function mentorMorning() {
       S.coins += pay;
       S.stats.ventureWins++;
       msgs.push(`${V.icon} ${V.name} returned 🪙${pay}!`);
+      if (v.type === 'janehoard') { S.quest.jane = 3; grantCard('revenge'); grantArtifact('spyglass'); if (!morningQueue.includes('jane3')) morningQueue.push('jane3'); }
     } else {
       const back = Math.round(v.amount * 0.25);
       S.coins += back;
@@ -150,10 +152,13 @@ function renderTreasury(view) {
         <p class="muted small">Returns arrive on the morning they're due. Failed ventures repay 25% through Treasury insurance.</p>
       </section>
     </div>
+    ${S.quest.jane === 1 ? `<section class="panel quest-panel"><h3>🏴‍☠️ Jane's Lost Hoard</h3>
+      <p><b>Quinn:</b> "Jane's half of the map and the Crown's half… together. Strictly as a business arrangement, I'll match your funding. 🪙500 and three days at sea, and success is guaranteed."</p>
+      <button class="btn primary" ${S.coins < 500 ? 'disabled' : ''} onclick="fundJaneHoard()">Fund the expedition (🪙500)</button></section>` : ''}
     <section class="panel deck-panel">
       <h3>🌍 Trade Ventures</h3>
       <div class="venture-grid">
-        ${Object.entries(VENTURES).map(([id, V]) => {
+        ${Object.entries(VENTURES).filter(([, V]) => !V.hidden).map(([id, V]) => {
           const locked = h < V.h;
           return `<div class="venture ${locked ? 'locked' : ''}">
             <div class="v-icon">${V.icon}</div>
@@ -165,4 +170,13 @@ function renderTreasury(view) {
         }).join('')}
       </div>
     </section>`;
+}
+
+function fundJaneHoard() {
+  if (S.quest.jane !== 1 || S.coins < 500) return;
+  S.coins -= 500;
+  S.ventures.push({ type: 'janehoard', amount: 500, due: S.day + VENTURES.janehoard.days });
+  S.quest.jane = 2;
+  toast('🏴‍☠️ The expedition sets sail for Jane\'s hidden island! Back in 3 days.');
+  saveGame(); renderAll();
 }
